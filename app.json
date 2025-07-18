@@ -5,7 +5,7 @@
     "description": "Una app diseñada para ayudar a las personas con autismo a gestionar su día a día.",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/calmatea-icon.jpg",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -18,7 +18,7 @@
       "package": "com.someone1a.calmatea",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/calmatea-icon.jpg",
         "backgroundColor": "#ffffff"
       }
     },
