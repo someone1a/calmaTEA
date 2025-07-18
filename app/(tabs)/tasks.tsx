@@ -35,11 +35,11 @@ export default function TasksScreen() {
 
   const handleDeleteTask = (taskId: string) => {
     Alert.alert(
-      'Delete Task',
-      'Are you sure you want to delete this task?',
+      'Eliminar Tarea',
+      '¿Estás seguro de que quieres eliminar esta tarea?',
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteTask(taskId) },
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Eliminar', style: 'destructive', onPress: () => deleteTask(taskId) },
       ]
     );
   };
@@ -47,14 +47,14 @@ export default function TasksScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>To-Do Tasks</Text>
+        <Text style={styles.headerTitle}>Tareas Pendientes</Text>
         <Text style={styles.headerSubtitle}>
-          Track your daily activities
+          Rastrea tus actividades diarias
         </Text>
         
         <View style={styles.progressSection}>
           <Text style={styles.progressText}>
-            {completedTasks} of {totalTasks} completed
+            {completedTasks} de {totalTasks} completadas
           </Text>
           <View style={styles.progressBar}>
             <View 
@@ -74,7 +74,7 @@ export default function TasksScreen() {
         {tasks.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              No tasks yet! Add your first task to get started.
+              ¡No hay tareas todavía! Agrega tu primera tarea para empezar.
             </Text>
           </View>
         ) : (
@@ -95,11 +95,11 @@ export default function TasksScreen() {
         <AccessibleButton
           style={styles.addButton}
           onPress={() => setShowAddModal(true)}
-          accessibilityLabel="Add new task"
-          accessibilityHint="Opens form to create a new task"
+          accessibilityLabel="Agregar nueva tarea"
+          accessibilityHint="Abre formulario para crear una nueva tarea"
         >
           <Plus size={24} color="#FFFFFF" />
-          <Text style={styles.addButtonText}>Add Task</Text>
+          <Text style={styles.addButtonText}>Agregar Tarea</Text>
         </AccessibleButton>
       </View>
 
@@ -111,11 +111,11 @@ export default function TasksScreen() {
       >
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add New Task</Text>
+            <Text style={styles.modalTitle}>Agregar Nueva Tarea</Text>
             <AccessibleButton
               style={styles.closeButton}
               onPress={() => setShowAddModal(false)}
-              accessibilityLabel="Close add task form"
+              accessibilityLabel="Cerrar formulario de agregar tarea"
             >
               <X size={24} color="#757575" />
             </AccessibleButton>
@@ -123,28 +123,28 @@ export default function TasksScreen() {
 
           <View style={styles.modalContent}>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Task Title *</Text>
+              <Text style={styles.inputLabel}>Título de la Tarea *</Text>
               <TextInput
                 style={styles.textInput}
                 value={newTaskTitle}
                 onChangeText={setNewTaskTitle}
-                placeholder="Enter task title"
-                accessibilityLabel="Task title input"
-                accessibilityHint="Enter the title for your new task"
+                placeholder="Ingresa el título de la tarea"
+                accessibilityLabel="Campo de título de tarea"
+                accessibilityHint="Ingresa el título para tu nueva tarea"
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Description (optional)</Text>
+              <Text style={styles.inputLabel}>Descripción (opcional)</Text>
               <TextInput
                 style={[styles.textInput, styles.multilineInput]}
                 value={newTaskDescription}
                 onChangeText={setNewTaskDescription}
-                placeholder="Enter task description"
+                placeholder="Ingresa la descripción de la tarea"
                 multiline
                 numberOfLines={3}
-                accessibilityLabel="Task description input"
-                accessibilityHint="Enter an optional description for your task"
+                accessibilityLabel="Campo de descripción de tarea"
+                accessibilityHint="Ingresa una descripción opcional para tu tarea"
               />
             </View>
 
@@ -152,18 +152,18 @@ export default function TasksScreen() {
               <AccessibleButton
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowAddModal(false)}
-                accessibilityLabel="Cancel adding task"
+                accessibilityLabel="Cancelar agregar tarea"
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
               </AccessibleButton>
 
               <AccessibleButton
                 style={[styles.modalButton, styles.saveButton]}
                 onPress={handleAddTask}
-                accessibilityLabel="Save new task"
-                accessibilityHint="Saves the task and closes the form"
+                accessibilityLabel="Guardar nueva tarea"
+                accessibilityHint="Guarda la tarea y cierra el formulario"
               >
-                <Text style={styles.saveButtonText}>Add Task</Text>
+                <Text style={styles.saveButtonText}>Agregar Tarea</Text>
               </AccessibleButton>
             </View>
           </View>

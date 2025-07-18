@@ -28,7 +28,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserState(JSON.parse(userData));
       }
     } catch (error) {
-      console.error('Error loading user:', error);
+      console.error('Error Cargando usuario:', error);
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +39,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       setUserState(userData);
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error('Error Guardando el usuario:', error);
     }
   };
 

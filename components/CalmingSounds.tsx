@@ -23,26 +23,26 @@ interface Sound {
 const sounds: Sound[] = [
   {
     id: 'rain',
-    name: 'Rain',
-    description: 'Gentle rainfall sounds',
+    name: 'Lluvia',
+    description: 'Sonidos suaves de lluvia',
     icon: '🌧️',
   },
   {
     id: 'ocean',
-    name: 'Ocean Waves',
-    description: 'Peaceful ocean sounds',
+    name: 'Olas del Mar',
+    description: 'Sonidos pacíficos del océano',
     icon: '🌊',
   },
   {
     id: 'forest',
-    name: 'Forest',
-    description: 'Birds and nature sounds',
+    name: 'Bosque',
+    description: 'Sonidos de pájaros y naturaleza',
     icon: '🌲',
   },
   {
     id: 'wind',
-    name: 'Wind',
-    description: 'Gentle wind sounds',
+    name: 'Viento',
+    description: 'Sonidos suaves de viento',
     icon: '💨',
   },
 ];
@@ -64,18 +64,18 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
         <AccessibleButton
           style={styles.backButton}
           onPress={onClose}
-          accessibilityLabel="Close calming sounds"
-          accessibilityHint="Return to relaxation tools"
+          accessibilityLabel="Cerrar sonidos relajantes"
+          accessibilityHint="Volver a las herramientas de relajación"
         >
           <ChevronLeft size={24} color="#2196F3" />
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>Volver</Text>
         </AccessibleButton>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Calming Sounds</Text>
+        <Text style={styles.title}>Sonidos Relajantes</Text>
         <Text style={styles.subtitle}>
-          Choose a sound to help you relax
+          Elige un sonido para ayudarte a relajar
         </Text>
 
         <ScrollView contentContainerStyle={styles.soundsList}>
@@ -87,8 +87,8 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
                 playingSound === sound.id && styles.playingCard,
               ]}
               onPress={() => toggleSound(sound.id)}
-              accessibilityLabel={`${sound.name} sound`}
-              accessibilityHint={`${playingSound === sound.id ? 'Stop' : 'Play'} ${sound.description}`}
+              accessibilityLabel={`Sonido de ${sound.name}`}
+              accessibilityHint={`${playingSound === sound.id ? 'Detener' : 'Reproducir'} ${sound.description}`}
             >
               <View style={styles.soundInfo}>
                 <Text style={styles.soundIcon}>{sound.icon}</Text>
@@ -112,7 +112,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
         {playingSound && (
           <View style={styles.nowPlaying}>
             <Text style={styles.nowPlayingText}>
-              🎵 Now playing: {sounds.find(s => s.id === playingSound)?.name}
+              🎵 Reproduciendo: {sounds.find(s => s.id === playingSound)?.name}
             </Text>
           </View>
         )}

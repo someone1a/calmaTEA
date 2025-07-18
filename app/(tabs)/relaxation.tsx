@@ -68,9 +68,9 @@ export default function RelaxationScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Animated.View style={[styles.headerContent, { opacity: fadeAnim }]}>
-          <Text style={styles.headerTitle}>Self-Regulation</Text>
+          <Text style={styles.headerTitle}>Autorregulación</Text>
           <Text style={styles.headerSubtitle}>
-            Take a moment to breathe and relax
+            Tómate un momento para respirar y relajarte
           </Text>
         </Animated.View>
       </View>
@@ -80,52 +80,52 @@ export default function RelaxationScreen() {
           <AccessibleButton
             style={[styles.toolCard, styles.breathingCard]}
             onPress={() => setSelectedTool('breathing')}
-            accessibilityLabel="Open breathing exercises"
-            accessibilityHint="Practice guided breathing exercises to help you relax"
+            accessibilityLabel="Abrir ejercicios de respiración"
+            accessibilityHint="Practica ejercicios de respiración guiada para ayudarte a relajarte"
           >
             <Wind size={48} color="#4CAF50" />
-            <Text style={styles.toolTitle}>Breathing Exercises</Text>
+            <Text style={styles.toolTitle}>Ejercicios de Respiración</Text>
             <Text style={styles.toolDescription}>
-              Guided breathing to help you feel calm
+              Respiración guiada para ayudarte a sentir calma
             </Text>
           </AccessibleButton>
 
           <AccessibleButton
             style={[styles.toolCard, styles.soundsCard]}
             onPress={() => setSelectedTool('sounds')}
-            accessibilityLabel="Open calming sounds"
-            accessibilityHint="Listen to peaceful sounds and music"
+            accessibilityLabel="Abrir sonidos relajantes"
+            accessibilityHint="Escucha sonidos y música tranquilizante"
           >
             <Music size={48} color="#2196F3" />
-            <Text style={styles.toolTitle}>Calming Sounds</Text>
+            <Text style={styles.toolTitle}>Sonidos Relajantes</Text>
             <Text style={styles.toolDescription}>
-              Peaceful sounds to help you relax
+              Sonidos tranquilos para ayudarte a relajar
             </Text>
           </AccessibleButton>
 
           <AccessibleButton
             style={[styles.toolCard, styles.emotionsCard]}
             onPress={() => setSelectedTool('emotions')}
-            accessibilityLabel="Open emotion tracker"
-            accessibilityHint="Track and understand your feelings"
+            accessibilityLabel="Abrir rastreador de emociones"
+            accessibilityHint="Rastrea y comprende tus sentimientos"
           >
             <Smile size={48} color="#FF9800" />
-            <Text style={styles.toolTitle}>Emotion Tracker</Text>
+            <Text style={styles.toolTitle}>Rastreador de Emociones</Text>
             <Text style={styles.toolDescription}>
-              How are you feeling today?
+              ¿Cómo te sientes hoy?
             </Text>
           </AccessibleButton>
 
           <AccessibleButton
             style={[styles.toolCard, styles.timerCard]}
             onPress={() => setSelectedTool('timer')}
-            accessibilityLabel="Open custom timer"
-            accessibilityHint="Set timers for activities or break times"
+            accessibilityLabel="Abrir temporizador personalizado"
+            accessibilityHint="Configura temporizadores para actividades o descansos"
           >
             <Timer size={48} color="#9C27B0" />
-            <Text style={styles.toolTitle}>Custom Timer</Text>
+            <Text style={styles.toolTitle}>Temporizador</Text>
             <Text style={styles.toolDescription}>
-              Set timers for activities or breaks
+              Configura tiempos para actividades o descansos
             </Text>
           </AccessibleButton>
         </View>

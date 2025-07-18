@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import  { React, createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Task {
@@ -6,7 +6,7 @@ interface Task {
   title: string;
   description: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt: Date; 
 }
 
 interface TasksContextType {
@@ -40,7 +40,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setTasks(tasksWithDates);
       }
     } catch (error) {
-      console.error('Error loading tasks:', error);
+      console.error('Error Cargando Tareas:', error);
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +50,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
     } catch (error) {
-      console.error('Error saving tasks:', error);
+      console.error('Error Guardando Tareas:', error);
     }
   };
 

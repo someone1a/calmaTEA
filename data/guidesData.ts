@@ -174,5 +174,187 @@ export const guidesData = [
         icon: '🏠',
       },
     ],
-  },
+  },{
+  id: '5',
+  title: 'Ir al Baño',
+  description: 'Pasos para usar el baño de forma correcta',
+  icon: '🚽',
+  steps: [
+    {
+      id: '5-1',
+      title: 'Entra al baño',
+      description: 'Ve al baño cuando sientas que lo necesitas',
+      icon: '🚪',
+    },
+    {
+      id: '5-2',
+      title: 'Bájate la ropa',
+      description: 'Bájate los pantalones y la ropa interior',
+      icon: '🩲',
+    },
+    {
+      id: '5-3',
+      title: 'Siéntate en el inodoro',
+      description: 'Siéntate con cuidado sobre el inodoro',
+      icon: '🚽',
+    },
+    {
+      id: '5-4',
+      title: 'Haz tus necesidades',
+      description: 'Orina o defeca en el inodoro',
+      icon: '💩',
+    },
+    {
+      id: '5-5',
+      title: 'Límpiate',
+      description: 'Usa papel higiénico para limpiarte',
+      icon: '🧻',
+    },
+    {
+      id: '5-6',
+      title: 'Tira la cadena',
+      description: 'Presiona el botón o palanca para vaciar el inodoro',
+      icon: '🚰',
+    },
+    {
+      id: '5-7',
+      title: 'Lávate las manos',
+      description: 'Ve al lavamanos y lávate las manos con agua y jabón',
+      icon: '🧼',
+    },
+  ],
+},
+{
+  id: '6',
+  title: 'Hora de Dormir',
+  description: 'Rutina para prepararse para ir a dormir',
+  icon: '🛏️',
+  steps: [
+    {
+      id: '6-1',
+      title: 'Ponerte el pijama',
+      description: 'Cámbiate y ponte tu pijama cómodo',
+      icon: '🛌',
+    },
+    {
+      id: '6-2',
+      title: 'Cepillarte los dientes',
+      description: 'Lávate los dientes antes de acostarte',
+      icon: '🦷',
+    },
+    {
+      id: '6-3',
+      title: 'Ir al baño',
+      description: 'Ve al baño para evitar despertarte de noche',
+      icon: '🚽',
+    },
+    {
+      id: '6-4',
+      title: 'Apagar pantallas',
+      description: 'Apaga la televisión, celular o tablet',
+      icon: '📵',
+    },
+    {
+      id: '6-5',
+      title: 'Apagar la luz',
+      description: 'Apaga la luz y relájate en la cama',
+      icon: '💡',
+    },
+    {
+      id: '6-6',
+      title: 'Cerrar los ojos',
+      description: 'Respira profundo y cierra los ojos para dormir',
+      icon: '😴',
+    },
+  ],
+},
+{
+  id: '7',
+  title: 'Comer en la Mesa',
+  description: 'Pasos para tener una comida tranquila y ordenada',
+  icon: '🍽️',
+  steps: [
+    {
+      id: '7-1',
+      title: 'Lava tus manos',
+      description: 'Antes de comer, lávate bien las manos',
+      icon: '🧼',
+    },
+    {
+      id: '7-2',
+      title: 'Siéntate correctamente',
+      description: 'Siéntate derecho en la silla, frente al plato',
+      icon: '🪑',
+    },
+    {
+      id: '7-3',
+      title: 'Usa cubiertos',
+      description: 'Usa cuchara, tenedor o cuchillo si es necesario',
+      icon: '🍴',
+    },
+    {
+      id: '7-4',
+      title: 'Mastica con calma',
+      description: 'Come despacio y mastica bien los alimentos',
+      icon: '😋',
+    },
+    {
+      id: '7-5',
+      title: 'Habla con respeto',
+      description: 'Si hablas en la mesa, hazlo con respeto y sin gritar',
+      icon: '🗣️',
+    },
+    {
+      id: '7-6',
+      title: 'Limpia y retira',
+      description: 'Limpia tu lugar y lleva tu plato cuando termines',
+      icon: '🧽',
+    },
+  ],
+},
+{
+  id: '8',
+  title: 'Preparar la Mochila',
+  description: 'Cómo preparar tu mochila antes de salir',
+  icon: '🎒',
+  steps: [
+    {
+      id: '8-1',
+      title: 'Mira tu horario',
+      description: 'Revisa qué materias tienes hoy o qué necesitas',
+      icon: '📅',
+    },
+    {
+      id: '8-2',
+      title: 'Junta tus útiles',
+      description: 'Busca tus cuadernos, carpetas y lápices',
+      icon: '✏️',
+    },
+    {
+      id: '8-3',
+      title: 'Agrega el almuerzo',
+      description: 'Coloca tu vianda o merienda si llevás comida',
+      icon: '🍱',
+    },
+    {
+      id: '8-4',
+      title: 'Incluye la botella de agua',
+      description: 'Lleva agua para mantenerte hidratado',
+      icon: '🥤',
+    },
+    {
+      id: '8-5',
+      title: 'Cierra la mochila',
+      description: 'Guarda todo y cerrá bien la mochila',
+      icon: '🎒',
+    },
+    {
+      id: '8-6',
+      title: 'Listo para salir',
+      description: 'Tienes todo listo para ir a la escuela o salida',
+      icon: '🚪',
+    },
+  ],
+}
+
 ];
