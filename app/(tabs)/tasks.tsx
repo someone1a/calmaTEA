@@ -1,0 +1,343 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Modal,
+  TextInput,
+  Alert,
+} from 'react-native';
+import { AccessibleButton } from '@/components/AccessibleButton';
+import { TaskCard } from '@/components/TaskCard';
+import { useTasks } from '@/contexts/TasksContext';
+import { Plus, X } from 'lucide-react-native';
+
+export default function TasksScreen() {
+  const { tasks, addTask, toggleTask, deleteTask } = useTasks();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
+
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const totalTasks = tasks.length;
+  const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+  const handleAddTask = () => {
+    if (newTaskTitle.trim()) {
+      addTask(newTaskTitle.trim(), newTaskDescription.trim());
+      setNewTaskTitle('');
+      setNewTaskDescription('');
+      setShowAddModal(false);
+    }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    Alert.alert(
+      'Delete Task',
+      'Are you sure you want to delete this task?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => deleteTask(taskId) },
+      ]
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>To-Do Tasks</Text>
+        <Text style={styles.headerSubtitle}>
+          Track your daily activities
+        </Text>
+        
+        <View style={styles.progressSection}>
+          <Text style={styles.progressText}>
+            {completedTasks} of {totalTasks} completed
+          </Text>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { width: `${progressPercentage}%` }
+              ]} 
+            />
+          </View>
+          <Text style={styles.progressPercentage}>
+            {Math.round(progressPercentage)}%
+          </Text>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {tasks.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              No tasks yet! Add your first task to get started.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.tasksList}>
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onToggle={toggleTask}
+                onDelete={handleDeleteTask}
+              />
+            ))}
+          </View>
+        )}
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <AccessibleButton
+          style={styles.addButton}
+          onPress={() => setShowAddModal(true)}
+          accessibilityLabel="Add new task"
+          accessibilityHint="Opens form to create a new task"
+        >
+          <Plus size={24} color="#FFFFFF" />
+          <Text style={styles.addButtonText}>Add Task</Text>
+        </AccessibleButton>
+      </View>
+
+      <Modal
+        visible={showAddModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Add New Task</Text>
+            <AccessibleButton
+              style={styles.closeButton}
+              onPress={() => setShowAddModal(false)}
+              accessibilityLabel="Close add task form"
+            >
+              <X size={24} color="#757575" />
+            </AccessibleButton>
+          </View>
+
+          <View style={styles.modalContent}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Task Title *</Text>
+              <TextInput
+                style={styles.textInput}
+                value={newTaskTitle}
+                onChangeText={setNewTaskTitle}
+                placeholder="Enter task title"
+                accessibilityLabel="Task title input"
+                accessibilityHint="Enter the title for your new task"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Description (optional)</Text>
+              <TextInput
+                style={[styles.textInput, styles.multilineInput]}
+                value={newTaskDescription}
+                onChangeText={setNewTaskDescription}
+                placeholder="Enter task description"
+                multiline
+                numberOfLines={3}
+                accessibilityLabel="Task description input"
+                accessibilityHint="Enter an optional description for your task"
+              />
+            </View>
+
+            <View style={styles.modalButtons}>
+              <AccessibleButton
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowAddModal(false)}
+                accessibilityLabel="Cancel adding task"
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </AccessibleButton>
+
+              <AccessibleButton
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleAddTask}
+                accessibilityLabel="Save new task"
+                accessibilityHint="Saves the task and closes the form"
+              >
+                <Text style={styles.saveButtonText}>Add Task</Text>
+              </AccessibleButton>
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    padding: 20,
+    paddingBottom: 16,
+    backgroundColor: '#FFF3E0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFCC02',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#F57C00',
+    textAlign: 'center',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  progressSection: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  progressText: {
+    fontSize: 16,
+    color: '#333333',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+    borderRadius: 4,
+  },
+  progressPercentage: {
+    fontSize: 14,
+    color: '#757575',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    color: '#757575',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  tasksList: {
+    gap: 12,
+  },
+  footer: {
+    padding: 20,
+    paddingTop: 16,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  inputGroup: {
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    padding: 16,
+    fontSize: 16,
+    color: '#333333',
+  },
+  multilineInput: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 32,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#E0E0E0',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#757575',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+});

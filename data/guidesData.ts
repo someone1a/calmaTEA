@@ -1,0 +1,178 @@
+export const guidesData = [
+  {
+    id: '1',
+    title: 'Brushing Teeth',
+    description: 'Step-by-step guide to brush your teeth properly',
+    icon: '🦷',
+    steps: [
+      {
+        id: '1-1',
+        title: 'Get your toothbrush',
+        description: 'Find your toothbrush and hold it in your hand',
+        icon: '🪥',
+      },
+      {
+        id: '1-2',
+        title: 'Put toothpaste on brush',
+        description: 'Squeeze a small amount of toothpaste onto your toothbrush',
+        icon: '🧴',
+      },
+      {
+        id: '1-3',
+        title: 'Wet the toothbrush',
+        description: 'Put the toothbrush under the water tap for a few seconds',
+        icon: '💧',
+      },
+      {
+        id: '1-4',
+        title: 'Brush your teeth',
+        description: 'Gently move the toothbrush in small circles on all your teeth',
+        icon: '🦷',
+      },
+      {
+        id: '1-5',
+        title: 'Rinse your mouth',
+        description: 'Take some water in your mouth and spit it out',
+        icon: '🚿',
+      },
+      {
+        id: '1-6',
+        title: 'Clean up',
+        description: 'Rinse your toothbrush and put everything away',
+        icon: '✨',
+      },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Getting Dressed',
+    description: 'How to put on your clothes step by step',
+    icon: '👕',
+    steps: [
+      {
+        id: '2-1',
+        title: 'Choose your clothes',
+        description: 'Pick out the clothes you want to wear today',
+        icon: '👗',
+      },
+      {
+        id: '2-2',
+        title: 'Put on underwear',
+        description: 'Put on your underwear first',
+        icon: '🩲',
+      },
+      {
+        id: '2-3',
+        title: 'Put on shirt',
+        description: 'Put your arms through the sleeves and pull over your head',
+        icon: '👕',
+      },
+      {
+        id: '2-4',
+        title: 'Put on pants',
+        description: 'Step into your pants and pull them up',
+        icon: '👖',
+      },
+      {
+        id: '2-5',
+        title: 'Put on socks',
+        description: 'Put on your socks by pulling them over your feet',
+        icon: '🧦',
+      },
+      {
+        id: '2-6',
+        title: 'Put on shoes',
+        description: 'Put on your shoes and tie them if needed',
+        icon: '👟',
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Preparing for School',
+    description: 'Get ready for school in the morning',
+    icon: '🎒',
+    steps: [
+      {
+        id: '3-1',
+        title: 'Wake up',
+        description: 'Get out of bed when your alarm goes off',
+        icon: '⏰',
+      },
+      {
+        id: '3-2',
+        title: 'Brush teeth',
+        description: 'Go to the bathroom and brush your teeth',
+        icon: '🦷',
+      },
+      {
+        id: '3-3',
+        title: 'Get dressed',
+        description: 'Put on your school clothes',
+        icon: '👕',
+      },
+      {
+        id: '3-4',
+        title: 'Eat breakfast',
+        description: 'Have a healthy breakfast',
+        icon: '🥞',
+      },
+      {
+        id: '3-5',
+        title: 'Pack your backpack',
+        description: 'Put your books, homework, and lunch in your backpack',
+        icon: '🎒',
+      },
+      {
+        id: '3-6',
+        title: 'Ready to go',
+        description: 'You are ready to go to school!',
+        icon: '🚌',
+      },
+    ],
+  },
+  {
+    id: '4',
+    title: 'Washing Hands',
+    description: 'How to wash your hands properly',
+    icon: '🧼',
+    steps: [
+      {
+        id: '4-1',
+        title: 'Turn on the water',
+        description: 'Turn on the water tap to a comfortable temperature',
+        icon: '🚿',
+      },
+      {
+        id: '4-2',
+        title: 'Wet your hands',
+        description: 'Put your hands under the water',
+        icon: '💧',
+      },
+      {
+        id: '4-3',
+        title: 'Apply soap',
+        description: 'Put soap on your hands',
+        icon: '🧼',
+      },
+      {
+        id: '4-4',
+        title: 'Rub hands together',
+        description: 'Rub your hands together for 20 seconds',
+        icon: '👏',
+      },
+      {
+        id: '4-5',
+        title: 'Rinse hands',
+        description: 'Put your hands under the water to rinse off the soap',
+        icon: '🚿',
+      },
+      {
+        id: '4-6',
+        title: 'Dry hands',
+        description: 'Dry your hands with a clean towel',
+        icon: '🏠',
+      },
+    ],
+  },
+];
