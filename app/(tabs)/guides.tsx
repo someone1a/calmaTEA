@@ -29,9 +29,9 @@ export default function GuidesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Pictograms & Guides</Text>
+        <Text style={styles.headerTitle}>Pictogramas Y guías</Text>
         <Text style={styles.headerSubtitle}>
-          Step-by-step guides for daily activities
+          Guías paso a paso para actividades diarias
         </Text>
       </View>
 
@@ -42,14 +42,14 @@ export default function GuidesScreen() {
               key={guide.id}
               style={styles.guideCard}
               onPress={() => handleGuideSelect(guide)}
-              accessibilityLabel={`Open guide: ${guide.title}`}
-              accessibilityHint={`View step-by-step instructions for ${guide.title.toLowerCase()}`}
+              accessibilityLabel={`Abrir guía: ${guide.title}`}
+              accessibilityHint={`Ver instrucciones paso a paso para la guía: ${guide.title.toLowerCase()}`}
             >
               <Text style={styles.guideIcon}>{guide.icon}</Text>
               <Text style={styles.guideTitle}>{guide.title}</Text>
               <Text style={styles.guideDescription}>{guide.description}</Text>
               <Text style={styles.stepCount}>
-                {guide.steps.length} steps
+                {guide.steps.length} Pasos
               </Text>
             </AccessibleButton>
           ))}
@@ -67,11 +67,11 @@ export default function GuidesScreen() {
             <AccessibleButton
               style={styles.backButton}
               onPress={handleCloseGuide}
-              accessibilityLabel="Close guide"
-              accessibilityHint="Return to guides list"
+              accessibilityLabel="Cerrar guía"
+              accessibilityHint="Volver al listado de guias"
             >
               <ChevronLeft size={24} color="#2196F3" />
-              <Text style={styles.backButtonText}>Back</Text>
+              <Text style={styles.backButtonText}>Atras</Text>
             </AccessibleButton>
           </View>
           
