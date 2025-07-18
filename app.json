@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "calmaTEA",
+    "slug": "CalmaTEA",
+    "description": "Una app diseñada para ayudar a las personas con autismo a gestionar su día a día.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +10,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.someone1a.calmaTEA"
+    },
+    "android": {
+      "package": "com.someone1a.calmaTEA"
     },
     "web": {
       "bundler": "metro",
