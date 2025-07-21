@@ -3,9 +3,9 @@
     "name": "calmaTEA",
     "slug": "calmatea",
     "description": "Una app diseñada para ayudar a las personas con autismo a gestionar su día a día.",
-    "version": "1.0.0",
+    "version": "0.1.2",
     "orientation": "portrait",
-    "icon": "./assets/images/calmatea-icon.jpg",
+    "icon": "./assets/images/favicon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -18,7 +18,7 @@
       "package": "com.someone1a.calmatea",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/calmatea-icon.jpg",
+        "foregroundImage": "./assets/images/calmatea-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
@@ -30,7 +30,15 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/calmatea-icon.png",
+          "color": "#4CAF50",
+          "sounds": ["./assets/sounds/notification.wav"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
