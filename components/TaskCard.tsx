@@ -10,7 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { AccessibleButton } from './AccessibleButton';
-import { CircleCheck as CheckCircle, Circle, Trash2, Calendar, Clock, Bell, Edit3, X } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Circle, Trash2, Calendar, Clock, Bell, CreditCard as Edit3, X } from 'lucide-react-native';
 
 interface TaskReminder {
   id: string;
