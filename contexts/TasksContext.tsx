@@ -7,6 +7,7 @@ interface TaskReminder {
   value: string; // '1_day', '1_hour', or custom like '30_minutes'
   label: string; // '1 día antes', '1 hora antes', '30 minutos antes'
   timestamp?: number; // Calculated reminder time
+  notificationId?: string; // ID de la notificación programada
 }
 
 interface Task {

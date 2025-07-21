@@ -517,6 +517,69 @@ const styles = StyleSheet.create({
   tasksList: {
     gap: 12,
   },
+  viewToggle: {
+    flexDirection: 'row',
+    margin: 16,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    padding: 4,
+  },
+  toggleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    gap: 6,
+  },
+  activeToggle: {
+    backgroundColor: '#4CAF50',
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#757575',
+  },
+  activeToggleText: {
+    color: '#FFFFFF',
+  },
+  sectionHeader: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  sectionCount: {
+    fontSize: 14,
+    color: '#757575',
+    fontWeight: '500',
+  },
+  taskSeparator: {
+    height: 8,
+  },
+  sectionSeparator: {
+    height: 16,
+  },
   footer: {
     padding: 20,
     paddingTop: 16,
