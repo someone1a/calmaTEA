@@ -8,29 +8,92 @@ import {
   Modal,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import { AccessibleButton } from '@/components/AccessibleButton';
 import { TaskCard } from '@/components/TaskCard';
 import { useTasks } from '@/contexts/TasksContext';
-import { Plus, X } from 'lucide-react-native';
+import { Plus, X, Calendar, Clock, Bell } from 'lucide-react-native';
+
+interface TaskReminder {
+  id: string;
+  type: 'preset' | 'custom';
+  value: string;
+  label: string;
+  timestamp?: number;
+}
 
 export default function TasksScreen() {
-  const { tasks, addTask, toggleTask, deleteTask } = useTasks();
+  const { tasks, addTask, updateTask, toggleTask, deleteTask } = useTasks();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
+  
+  // Estados para fecha límite y recordatorios
+  const [hasDeadline, setHasDeadline] = useState(false);
+  const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [dueDateString, setDueDateString] = useState('');
+  const [dueTimeString, setDueTimeString] = useState('');
+  const [hasReminder, setHasReminder] = useState(false);
+  const [selectedReminder, setSelectedReminder] = useState<TaskReminder | null>(null);
+  const [showCustomReminder, setShowCustomReminder] = useState(false);
+  const [customReminderAmount, setCustomReminderAmount] = useState('');
+  const [customReminderUnit, setCustomReminderUnit] = useState('minutes');
 
   const completedTasks = tasks.filter(task => task.completed).length;
   const totalTasks = tasks.length;
   const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
+  const presetReminders: TaskReminder[] = [
+    { id: '1', type: 'preset', value: '1_day', label: '1 día antes' },
+    { id: '2', type: 'preset', value: '1_hour', label: '1 hora antes' },
+  ];
+
   const handleAddTask = () => {
-    if (newTaskTitle.trim()) {
-      addTask(newTaskTitle.trim(), newTaskDescription.trim());
-      setNewTaskTitle('');
-      setNewTaskDescription('');
-      setShowAddModal(false);
+    if (!newTaskTitle.trim()) return;
+
+    let finalDueDate: Date | null = null;
+    let finalReminder: TaskReminder | undefined = undefined;
+
+    // Procesar fecha límite
+    if (hasDeadline && dueDateString && dueTimeString) {
+      const [day, month, year] = dueDateString.split('/').map(Number);
+      const [hours, minutes] = dueTimeString.split(':').map(Number);
+      finalDueDate = new Date(year, month - 1, day, hours, minutes);
     }
+
+    // Procesar recordatorio
+    if (hasReminder && finalDueDate) {
+      if (showCustomReminder && customReminderAmount) {
+        finalReminder = {
+          id: Date.now().toString(),
+          type: 'custom',
+          value: `${customReminderAmount}_${customReminderUnit}`,
+          label: `${customReminderAmount} ${customReminderUnit === 'minutes' ? 'minutos' : 
+                   customReminderUnit === 'hours' ? 'horas' : 'días'} antes`,
+        };
+      } else if (selectedReminder) {
+        finalReminder = selectedReminder;
+      }
+    }
+
+    addTask(newTaskTitle.trim(), newTaskDescription.trim(), finalDueDate || undefined, finalReminder);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setNewTaskTitle('');
+    setNewTaskDescription('');
+    setHasDeadline(false);
+    setDueDate(null);
+    setDueDateString('');
+    setDueTimeString('');
+    setHasReminder(false);
+    setSelectedReminder(null);
+    setShowCustomReminder(false);
+    setCustomReminderAmount('');
+    setCustomReminderUnit('minutes');
+    setShowAddModal(false);
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -42,6 +105,19 @@ export default function TasksScreen() {
         { text: 'Eliminar', style: 'destructive', onPress: () => deleteTask(taskId) },
       ]
     );
+  };
+
+  const formatDateForInput = (date: Date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatTimeForInput = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -84,6 +160,7 @@ export default function TasksScreen() {
                 key={task.id}
                 task={task}
                 onToggle={toggleTask}
+                onUpdate={updateTask}
                 onDelete={handleDeleteTask}
               />
             ))}
@@ -114,14 +191,14 @@ export default function TasksScreen() {
             <Text style={styles.modalTitle}>Agregar Nueva Tarea</Text>
             <AccessibleButton
               style={styles.closeButton}
-              onPress={() => setShowAddModal(false)}
+              onPress={resetForm}
               accessibilityLabel="Cerrar formulario de agregar tarea"
             >
               <X size={24} color="#757575" />
             </AccessibleButton>
           </View>
 
-          <View style={styles.modalContent}>
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Título de la Tarea *</Text>
               <TextInput
@@ -148,10 +225,205 @@ export default function TasksScreen() {
               />
             </View>
 
+            {/* Pregunta sobre fecha límite */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>¿La tarea tiene una fecha límite?</Text>
+              <View style={styles.optionButtons}>
+                <AccessibleButton
+                  style={[styles.optionButton, hasDeadline && styles.selectedOption]}
+                  onPress={() => setHasDeadline(true)}
+                  accessibilityLabel="Sí, tiene fecha límite"
+                >
+                  <Text style={[styles.optionText, hasDeadline && styles.selectedOptionText]}>
+                    Sí
+                  </Text>
+                </AccessibleButton>
+                <AccessibleButton
+                  style={[styles.optionButton, !hasDeadline && styles.selectedOption]}
+                  onPress={() => {
+                    setHasDeadline(false);
+                    setHasReminder(false);
+                  }}
+                  accessibilityLabel="No, sin fecha límite"
+                >
+                  <Text style={[styles.optionText, !hasDeadline && styles.selectedOptionText]}>
+                    No
+                  </Text>
+                </AccessibleButton>
+              </View>
+            </View>
+
+            {/* Campos de fecha y hora si tiene deadline */}
+            {hasDeadline && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Fecha de vencimiento (DD/MM/AAAA)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={dueDateString}
+                    onChangeText={setDueDateString}
+                    placeholder="25/12/2024"
+                    accessibilityLabel="Campo de fecha de vencimiento"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Hora de vencimiento (HH:MM)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={dueTimeString}
+                    onChangeText={setDueTimeString}
+                    placeholder="14:30"
+                    accessibilityLabel="Campo de hora de vencimiento"
+                  />
+                </View>
+
+                {/* Pregunta sobre recordatorio */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>¿Querés que te recuerde esta tarea?</Text>
+                  <View style={styles.optionButtons}>
+                    <AccessibleButton
+                      style={[styles.optionButton, hasReminder && styles.selectedOption]}
+                      onPress={() => setHasReminder(true)}
+                      accessibilityLabel="Sí, quiero recordatorio"
+                    >
+                      <Text style={[styles.optionText, hasReminder && styles.selectedOptionText]}>
+                        Sí
+                      </Text>
+                    </AccessibleButton>
+                    <AccessibleButton
+                      style={[styles.optionButton, !hasReminder && styles.selectedOption]}
+                      onPress={() => setHasReminder(false)}
+                      accessibilityLabel="No, sin recordatorio"
+                    >
+                      <Text style={[styles.optionText, !hasReminder && styles.selectedOptionText]}>
+                        No
+                      </Text>
+                    </AccessibleButton>
+                  </View>
+                </View>
+
+                {/* Opciones de recordatorio */}
+                {hasReminder && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Opciones de recordatorio</Text>
+                    
+                    {/* Recordatorios predefinidos */}
+                    <View style={styles.reminderOptions}>
+                      {presetReminders.map((reminder) => (
+                        <AccessibleButton
+                          key={reminder.id}
+                          style={[
+                            styles.reminderOption,
+                            selectedReminder?.id === reminder.id && !showCustomReminder && styles.selectedReminder
+                          ]}
+                          onPress={() => {
+                            setSelectedReminder(reminder);
+                            setShowCustomReminder(false);
+                          }}
+                          accessibilityLabel={`Recordatorio ${reminder.label}`}
+                        >
+                          <Bell size={16} color={selectedReminder?.id === reminder.id && !showCustomReminder ? '#FFFFFF' : '#4CAF50'} />
+                          <Text style={[
+                            styles.reminderOptionText,
+                            selectedReminder?.id === reminder.id && !showCustomReminder && styles.selectedReminderText
+                          ]}>
+                            {reminder.label}
+                          </Text>
+                        </AccessibleButton>
+                      ))}
+                      
+                      {/* Opción personalizada */}
+                      <AccessibleButton
+                        style={[
+                          styles.reminderOption,
+                          showCustomReminder && styles.selectedReminder
+                        ]}
+                        onPress={() => setShowCustomReminder(true)}
+                        accessibilityLabel="Personalizar recordatorio"
+                      >
+                        <Clock size={16} color={showCustomReminder ? '#FFFFFF' : '#4CAF50'} />
+                        <Text style={[
+                          styles.reminderOptionText,
+                          showCustomReminder && styles.selectedReminderText
+                        ]}>
+                          Personalizar
+                        </Text>
+                      </AccessibleButton>
+                    </View>
+
+                    {/* Campos para recordatorio personalizado */}
+                    {showCustomReminder && (
+                      <View style={styles.customReminderContainer}>
+                        <Text style={styles.customReminderLabel}>Recordar:</Text>
+                        <View style={styles.customReminderInputs}>
+                          <TextInput
+                            style={styles.customReminderAmount}
+                            value={customReminderAmount}
+                            onChangeText={setCustomReminderAmount}
+                            placeholder="30"
+                            keyboardType="numeric"
+                            accessibilityLabel="Cantidad para recordatorio personalizado"
+                          />
+                          <View style={styles.customReminderUnit}>
+                            <AccessibleButton
+                              style={[
+                                styles.unitButton,
+                                customReminderUnit === 'minutes' && styles.selectedUnit
+                              ]}
+                              onPress={() => setCustomReminderUnit('minutes')}
+                            >
+                              <Text style={[
+                                styles.unitButtonText,
+                                customReminderUnit === 'minutes' && styles.selectedUnitText
+                              ]}>
+                                min
+                              </Text>
+                            </AccessibleButton>
+                            <AccessibleButton
+                              style={[
+                                styles.unitButton,
+                                customReminderUnit === 'hours' && styles.selectedUnit
+                              ]}
+                              onPress={() => setCustomReminderUnit('hours')}
+                            >
+                              <Text style={[
+                                styles.unitButtonText,
+                                customReminderUnit === 'hours' && styles.selectedUnitText
+                              ]}>
+                                hrs
+                              </Text>
+                            </AccessibleButton>
+                            <AccessibleButton
+                              style={[
+                                styles.unitButton,
+                                customReminderUnit === 'days' && styles.selectedUnit
+                              ]}
+                              onPress={() => setCustomReminderUnit('days')}
+                            >
+                              <Text style={[
+                                styles.unitButtonText,
+                                customReminderUnit === 'days' && styles.selectedUnitText
+                              ]}>
+                                días
+                              </Text>
+                            </AccessibleButton>
+                          </View>
+                        </View>
+                        <Text style={styles.customReminderPreview}>
+                          antes de la fecha límite
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+              </>
+            )}
+
             <View style={styles.modalButtons}>
               <AccessibleButton
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowAddModal(false)}
+                onPress={resetForm}
                 accessibilityLabel="Cancelar agregar tarea"
               >
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
@@ -166,7 +438,7 @@ export default function TasksScreen() {
                 <Text style={styles.saveButtonText}>Agregar Tarea</Text>
               </AccessibleButton>
             </View>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -313,10 +585,121 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: 'top',
   },
+  optionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  optionButton: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+  },
+  selectedOption: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#757575',
+  },
+  selectedOptionText: {
+    color: '#FFFFFF',
+  },
+  reminderOptions: {
+    gap: 12,
+  },
+  reminderOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F9F0',
+    borderWidth: 2,
+    borderColor: '#C8E6C9',
+    borderRadius: 8,
+    padding: 16,
+    gap: 12,
+  },
+  selectedReminder: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  reminderOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
+  selectedReminderText: {
+    color: '#FFFFFF',
+  },
+  customReminderContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  customReminderLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 12,
+  },
+  customReminderInputs: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  customReminderAmount: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 16,
+    color: '#333333',
+    width: 80,
+    textAlign: 'center',
+  },
+  customReminderUnit: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  unitButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  selectedUnit: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  unitButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#757575',
+  },
+  selectedUnitText: {
+    color: '#FFFFFF',
+  },
+  customReminderPreview: {
+    fontSize: 12,
+    color: '#666666',
+    fontStyle: 'italic',
+  },
   modalButtons: {
     flexDirection: 'row',
     gap: 12,
     marginTop: 32,
+    marginBottom: 20,
   },
   modalButton: {
     flex: 1,
