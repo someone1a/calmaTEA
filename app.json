@@ -34,7 +34,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/calmatea-icon.png",
+          "icon": "./assets/images/calmatea-icon.jpg",
           "color": "#4CAF50",
           "sounds": ["./assets/sounds/notification.wav"]
         }
