@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
@@ -13,6 +14,9 @@ import { AccessibleButton } from '@/components/AccessibleButton';
 import { Onboarding } from '@/components/Onboarding';
 import { Book, Heart, SquareCheck as CheckSquare, MessageCircle } from 'lucide-react-native';
 
+const { width: screenWidth } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
+const isLargeScreen = screenWidth >= 1024;
 export default function HomeScreen() {
   const router = useRouter();
   const { user, isLoading } = useUser();
@@ -119,7 +123,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
+    padding: isTablet ? 32 : 20,
+    maxWidth: isLargeScreen ? 1200 : '100%',
+    alignSelf: 'center',
+    width: '100%',
   },
   loadingContainer: {
     flex: 1,
@@ -127,33 +134,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 18,
+    fontSize: isTablet ? 22 : 18,
     color: '#757575',
     fontWeight: '600',
   },
   header: {
-    marginBottom: 32,
+    marginBottom: isTablet ? 40 : 32,
     alignItems: 'center',
   },
   welcome: {
-    fontSize: 28,
+    fontSize: isTablet ? 36 : 28,
     fontWeight: 'bold',
     color: '#2196F3',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: isTablet ? 22 : 18,
     color: '#757575',
     textAlign: 'center',
     fontWeight: '500',
   },
   menuGrid: {
-    gap: 16,
+    gap: isTablet ? 20 : 16,
+    ...(isTablet && {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+    }),
   },
   menuButton: {
     backgroundColor: '#FFFFFF',
-    padding: 24,
+    padding: isTablet ? 32 : 24,
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
@@ -164,18 +176,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    minHeight: 140,
+    minHeight: isTablet ? 180 : 140,
     justifyContent: 'center',
+    ...(isTablet && {
+      width: '48%',
+      marginBottom: 16,
+    }),
   },
   menuButtonText: {
-    fontSize: 20,
+    fontSize: isTablet ? 24 : 20,
     fontWeight: 'bold',
     color: '#333333',
-    marginTop: 12,
+    marginTop: isTablet ? 16 : 12,
     textAlign: 'center',
   },
   menuButtonSubtext: {
-    fontSize: 14,
+    fontSize: isTablet ? 16 : 14,
     color: '#757575',
     marginTop: 4,
     textAlign: 'center',

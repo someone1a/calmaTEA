@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  StatusBar,
+  Platform,
 } from 'react-native';
 import { AccessibleButton } from './AccessibleButton';
-import { ChevronLeft, Play, Pause } from 'lucide-react-native';
+import { ChevronLeft, Play, Pause, Square, RotateCcw } from 'lucide-react-native';
+import { Audio } from 'expo-av';
 
 interface CalmingSoundsProps {
   onClose: () => void;
@@ -18,48 +21,112 @@ interface Sound {
   name: string;
   description: string;
   icon: string;
+  color: string;
 }
 
 const sounds: Sound[] = [
   {
     id: 'rain',
-    name: 'Lluvia',
-    description: 'Sonidos suaves de lluvia',
+    name: 'Lluvia Suave',
+    description: 'Sonidos relajantes de lluvia',
     icon: '🌧️',
+    color: '#64B5F6',
   },
   {
     id: 'ocean',
     name: 'Olas del Mar',
     description: 'Sonidos pacíficos del océano',
     icon: '🌊',
+    color: '#4FC3F7',
   },
   {
-    id: 'forest',
-    name: 'Bosque',
-    description: 'Sonidos de pájaros y naturaleza',
-    icon: '🌲',
+    id: 'birds',
+    name: 'Pájaros',
+    description: 'Cantos de pájaros en la naturaleza',
+    icon: '🐦',
+    color: '#81C784',
   },
   {
-    id: 'wind',
-    name: 'Viento',
-    description: 'Sonidos suaves de viento',
-    icon: '💨',
+    id: 'whitenoise',
+    name: 'Ruido Blanco',
+    description: 'Sonido constante y relajante',
+    icon: '📻',
+    color: '#A1887F',
   },
 ];
 
 export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
   const [playingSound, setPlayingSound] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLooping, setIsLooping] = useState(true);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-  const toggleSound = (soundId: string) => {
-    if (playingSound === soundId) {
-      setPlayingSound(null);
-    } else {
-      setPlayingSound(soundId);
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      StatusBar.setBarStyle('dark-content', true);
     }
+
+    // Configurar audio
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    });
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
+
+  const playSound = async (soundId: string) => {
+    try {
+      // Detener sonido actual si existe
+      if (sound) {
+        await sound.unloadAsync();
+        setSound(null);
+      }
+
+      // Simular carga de sonido (en una app real cargarías archivos de audio)
+      // Por ahora solo simulamos la funcionalidad
+      setPlayingSound(soundId);
+      setIsPlaying(true);
+      
+      // Simular sonido con timeout (en una app real usarías archivos de audio reales)
+      console.log(`Reproduciendo: ${sounds.find(s => s.id === soundId)?.name}`);
+      
+    } catch (error) {
+      console.error('Error al reproducir sonido:', error);
+    }
+  };
+
+  const pauseSound = async () => {
+    setIsPlaying(false);
+    console.log('Sonido pausado');
+  };
+
+  const stopSound = async () => {
+    if (sound) {
+      await sound.unloadAsync();
+      setSound(null);
+    }
+    setPlayingSound(null);
+    setIsPlaying(false);
+    console.log('Sonido detenido');
+  };
+
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
+    console.log(`Repetición ${!isLooping ? 'activada' : 'desactivada'}`);
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#E5F1FC" translucent={false} />
+      
       <View style={styles.header}>
         <AccessibleButton
           style={styles.backButton}
@@ -67,7 +134,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
           accessibilityLabel="Cerrar sonidos relajantes"
           accessibilityHint="Volver a las herramientas de relajación"
         >
-          <ChevronLeft size={24} color="#2196F3" />
+          <ChevronLeft size={24} color="#1976D2" />
           <Text style={styles.backButtonText}>Volver</Text>
         </AccessibleButton>
       </View>
@@ -78,31 +145,37 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
           Elige un sonido para ayudarte a relajar
         </Text>
 
-        <ScrollView contentContainerStyle={styles.soundsList}>
-          {sounds.map((sound) => (
+        <ScrollView 
+          contentContainerStyle={styles.soundsList}
+          showsVerticalScrollIndicator={false}
+        >
+          {sounds.map((soundItem) => (
             <AccessibleButton
-              key={sound.id}
+              key={soundItem.id}
               style={[
                 styles.soundCard,
-                playingSound === sound.id && styles.playingCard,
+                playingSound === soundItem.id && styles.playingCard,
+                { borderLeftColor: soundItem.color }
               ]}
-              onPress={() => toggleSound(sound.id)}
-              accessibilityLabel={`Sonido de ${sound.name}`}
-              accessibilityHint={`${playingSound === sound.id ? 'Detener' : 'Reproducir'} ${sound.description}`}
+              onPress={() => playSound(soundItem.id)}
+              accessibilityLabel={`Sonido de ${soundItem.name}`}
+              accessibilityHint={`${playingSound === soundItem.id ? 'Detener' : 'Reproducir'} ${soundItem.description}`}
             >
               <View style={styles.soundInfo}>
-                <Text style={styles.soundIcon}>{sound.icon}</Text>
+                <View style={[styles.soundIconContainer, { backgroundColor: soundItem.color + '20' }]}>
+                  <Text style={styles.soundIcon}>{soundItem.icon}</Text>
+                </View>
                 <View style={styles.soundText}>
-                  <Text style={styles.soundName}>{sound.name}</Text>
-                  <Text style={styles.soundDescription}>{sound.description}</Text>
+                  <Text style={styles.soundName}>{soundItem.name}</Text>
+                  <Text style={styles.soundDescription}>{soundItem.description}</Text>
                 </View>
               </View>
               
-              <View style={styles.playButton}>
-                {playingSound === sound.id ? (
-                  <Pause size={24} color="#FFFFFF" />
+              <View style={[styles.playIndicator, { backgroundColor: soundItem.color }]}>
+                {playingSound === soundItem.id && isPlaying ? (
+                  <Pause size={20} color="#FFFFFF" />
                 ) : (
-                  <Play size={24} color="#2196F3" />
+                  <Play size={20} color="#FFFFFF" />
                 )}
               </View>
             </AccessibleButton>
@@ -110,10 +183,40 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
         </ScrollView>
 
         {playingSound && (
-          <View style={styles.nowPlaying}>
+          <View style={styles.playerControls}>
             <Text style={styles.nowPlayingText}>
               🎵 Reproduciendo: {sounds.find(s => s.id === playingSound)?.name}
             </Text>
+            
+            <View style={styles.controlButtons}>
+              <AccessibleButton
+                style={styles.controlButton}
+                onPress={isPlaying ? pauseSound : () => playSound(playingSound)}
+                accessibilityLabel={isPlaying ? 'Pausar' : 'Reproducir'}
+              >
+                {isPlaying ? (
+                  <Pause size={24} color="#2196F3" />
+                ) : (
+                  <Play size={24} color="#2196F3" />
+                )}
+              </AccessibleButton>
+
+              <AccessibleButton
+                style={styles.controlButton}
+                onPress={stopSound}
+                accessibilityLabel="Detener"
+              >
+                <Square size={24} color="#F44336" />
+              </AccessibleButton>
+
+              <AccessibleButton
+                style={[styles.controlButton, isLooping && styles.activeControl]}
+                onPress={toggleLoop}
+                accessibilityLabel={isLooping ? 'Desactivar repetición' : 'Activar repetición'}
+              >
+                <RotateCcw size={24} color={isLooping ? '#FFFFFF' : '#9E9E9E'} />
+              </AccessibleButton>
+            </View>
           </View>
         )}
       </View>
@@ -124,13 +227,14 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F8FCFF',
   },
   header: {
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
+    padding: 20,
+    backgroundColor: '#E5F1FC',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     flexDirection: 'row',
@@ -139,7 +243,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#2196F3',
+    color: '#1976D2',
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -150,19 +254,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: '#1976D2',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
-    color: '#757575',
+    color: '#666666',
     textAlign: 'center',
     marginBottom: 32,
     fontWeight: '500',
   },
   soundsList: {
     gap: 16,
+    paddingBottom: 20,
   },
   soundCard: {
     backgroundColor: '#FFFFFF',
@@ -177,11 +282,13 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
   },
   playingCard: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#F3F9FF',
     borderWidth: 2,
     borderColor: '#2196F3',
   },
@@ -190,9 +297,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  soundIcon: {
-    fontSize: 32,
+  soundIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 16,
+  },
+  soundIcon: {
+    fontSize: 28,
   },
   soundText: {
     flex: 1,
@@ -205,28 +319,52 @@ const styles = StyleSheet.create({
   },
   soundDescription: {
     fontSize: 14,
-    color: '#757575',
+    color: '#666666',
     fontWeight: '500',
   },
-  playButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+  playIndicator: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nowPlaying: {
+  playerControls: {
     backgroundColor: '#E8F5E8',
-    padding: 16,
-    borderRadius: 12,
+    padding: 20,
+    borderRadius: 16,
     marginTop: 20,
     alignItems: 'center',
   },
   nowPlayingText: {
     fontSize: 16,
-    color: '#4CAF50',
+    color: '#2E7D32',
     fontWeight: '600',
     textAlign: 'center',
+    marginBottom: 16,
+  },
+  controlButtons: {
+    flexDirection: 'row',
+    gap: 16,
+    alignItems: 'center',
+  },
+  controlButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  activeControl: {
+    backgroundColor: '#4CAF50',
   },
 });

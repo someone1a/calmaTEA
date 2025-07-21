@@ -5,6 +5,8 @@ import {
   StyleSheet,
   SafeAreaView,
   TextInput,
+  StatusBar,
+  Platform,
 } from 'react-native';
 import { AccessibleButton } from './AccessibleButton';
 import { ChevronLeft, Play, Pause, RotateCcw } from 'lucide-react-native';
@@ -19,6 +21,12 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      StatusBar.setBarStyle('dark-content', true);
+    }
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -73,22 +81,24 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5E6FA" translucent={false} />
+      
       <View style={styles.header}>
         <AccessibleButton
           style={styles.backButton}
           onPress={onClose}
-          accessibilityLabel="Close timer"
-          accessibilityHint="Return to relaxation tools"
+          accessibilityLabel="Cerrar temporizador"
+          accessibilityHint="Volver a las herramientas de relajación"
         >
-          <ChevronLeft size={24} color="#2196F3" />
-          <Text style={styles.backButtonText}>Back</Text>
+          <ChevronLeft size={24} color="#7B1FA2" />
+          <Text style={styles.backButtonText}>Volver</Text>
         </AccessibleButton>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Custom Timer</Text>
+        <Text style={styles.title}>Temporizador</Text>
         <Text style={styles.subtitle}>
-          Set a timer for activities or break times
+          Configura un temporizador para actividades o descansos
         </Text>
 
         {totalSeconds > 0 ? (
@@ -105,7 +115,7 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
           </View>
         ) : (
           <View style={styles.timerSetup}>
-            <Text style={styles.setupLabel}>Set your timer</Text>
+            <Text style={styles.setupLabel}>Configura tu temporizador</Text>
             <View style={styles.timeInputs}>
               <View style={styles.timeInput}>
                 <TextInput
@@ -114,8 +124,8 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
                   onChangeText={setMinutes}
                   keyboardType="numeric"
                   maxLength={2}
-                  accessibilityLabel="Minutes input"
-                  accessibilityHint="Enter the number of minutes"
+                  accessibilityLabel="Campo de minutos"
+                  accessibilityHint="Ingresa el número de minutos"
                 />
                 <Text style={styles.timeLabel}>min</Text>
               </View>
@@ -129,8 +139,8 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
                   onChangeText={setSeconds}
                   keyboardType="numeric"
                   maxLength={2}
-                  accessibilityLabel="Seconds input"
-                  accessibilityHint="Enter the number of seconds"
+                  accessibilityLabel="Campo de segundos"
+                  accessibilityHint="Ingresa el número de segundos"
                 />
                 <Text style={styles.timeLabel}>sec</Text>
               </View>
@@ -143,21 +153,21 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
             <AccessibleButton
               style={styles.startButton}
               onPress={startTimer}
-              accessibilityLabel="Start timer"
-              accessibilityHint="Begin the countdown timer"
+              accessibilityLabel="Iniciar temporizador"
+              accessibilityHint="Comenzar la cuenta regresiva"
             >
               <Play size={24} color="#FFFFFF" />
-              <Text style={styles.startButtonText}>Start</Text>
+              <Text style={styles.startButtonText}>Iniciar</Text>
             </AccessibleButton>
           ) : (
             <AccessibleButton
               style={styles.pauseButton}
               onPress={pauseTimer}
-              accessibilityLabel="Pause timer"
-              accessibilityHint="Pause the countdown timer"
+              accessibilityLabel="Pausar temporizador"
+              accessibilityHint="Pausar la cuenta regresiva"
             >
               <Pause size={24} color="#FFFFFF" />
-              <Text style={styles.pauseButtonText}>Pause</Text>
+              <Text style={styles.pauseButtonText}>Pausar</Text>
             </AccessibleButton>
           )}
 
@@ -165,17 +175,17 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
             <AccessibleButton
               style={styles.resetButton}
               onPress={resetTimer}
-              accessibilityLabel="Reset timer"
-              accessibilityHint="Reset the timer to start over"
+              accessibilityLabel="Reiniciar temporizador"
+              accessibilityHint="Reiniciar el temporizador para comenzar de nuevo"
             >
               <RotateCcw size={24} color="#757575" />
-              <Text style={styles.resetButtonText}>Reset</Text>
+              <Text style={styles.resetButtonText}>Reiniciar</Text>
             </AccessibleButton>
           )}
         </View>
 
         <View style={styles.presetButtons}>
-          <Text style={styles.presetLabel}>Quick presets</Text>
+          <Text style={styles.presetLabel}>Configuraciones rápidas</Text>
           <View style={styles.presetGrid}>
             {[
               { label: '1 min', mins: 1, secs: 0 },
@@ -190,8 +200,8 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
                   setMinutes(preset.mins.toString());
                   setSeconds(preset.secs.toString().padStart(2, '0'));
                 }}
-                accessibilityLabel={`Set timer to ${preset.label}`}
-                accessibilityHint={`Quickly set the timer to ${preset.label}`}
+                accessibilityLabel={`Configurar temporizador a ${preset.label}`}
+                accessibilityHint={`Configurar rápidamente el temporizador a ${preset.label}`}
               >
                 <Text style={styles.presetButtonText}>{preset.label}</Text>
               </AccessibleButton>
@@ -206,13 +216,14 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FEFAFF',
   },
   header: {
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
     padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#F5E6FA',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     flexDirection: 'row',
@@ -221,7 +232,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#2196F3',
+    color: '#7B1FA2',
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -232,7 +243,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#9C27B0',
+    color: '#7B1FA2',
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -250,7 +261,7 @@ const styles = StyleSheet.create({
   timerDisplay: {
     fontSize: 64,
     fontWeight: 'bold',
-    color: '#9C27B0',
+    color: '#7B1FA2',
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -281,7 +292,7 @@ const styles = StyleSheet.create({
   timeValue: {
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#9C27B0',
+    borderColor: '#7B1FA2',
     borderRadius: 12,
     padding: 16,
     fontSize: 32,
@@ -299,7 +310,7 @@ const styles = StyleSheet.create({
   timeSeparator: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#9C27B0',
+    color: '#7B1FA2',
   },
   controlButtons: {
     flexDirection: 'row',
@@ -365,15 +376,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   presetButton: {
-    backgroundColor: '#F3E5F5',
+    backgroundColor: '#F5E6FA',
     borderWidth: 1,
-    borderColor: '#9C27B0',
+    borderColor: '#7B1FA2',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
   },
   presetButtonText: {
-    color: '#9C27B0',
+    color: '#7B1FA2',
     fontSize: 16,
     fontWeight: '600',
   },

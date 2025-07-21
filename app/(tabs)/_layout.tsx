@@ -1,27 +1,39 @@
 import { Tabs } from 'expo-router';
+import { Dimensions } from 'react-native';
 import { Chrome as Home, Book, Heart, SquareCheck as CheckSquare, MessageCircle } from 'lucide-react-native';
 
+const { width: screenWidth } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#F5F5F5',
+          backgroundColor: '#FFFFFF',
           borderTopWidth: 2,
-          borderTopColor: '#E0E0E0',
-          height: 80,
-          paddingBottom: 10,
-          paddingTop: 10,
+          borderTopColor: '#F0F0F0',
+          height: isTablet ? 100 : 85,
+          paddingBottom: isTablet ? 16 : 12,
+          paddingTop: isTablet ? 16 : 12,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -2,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 10,
         },
         tabBarActiveTintColor: '#2196F3',
-        tabBarInactiveTintColor: '#757575',
+        tabBarInactiveTintColor: '#9E9E9E',
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontSize: isTablet ? 15 : 13,
+          fontWeight: '700',
+          marginTop: 4,
         },
         tabBarIconStyle: {
-          marginBottom: 4,
+          marginBottom: 2,
         },
       }}
     >
@@ -30,7 +42,7 @@ export default function TabLayout() {
         options={{
           title: 'Inicio',
           tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
+            <Home size={isTablet ? size + 4 : size} color={color} />
           ),
         }}
       />
@@ -39,16 +51,16 @@ export default function TabLayout() {
         options={{
           title: 'Guías',
           tabBarIcon: ({ size, color }) => (
-            <Book size={size} color={color} />
+            <Book size={isTablet ? size + 4 : size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="relaxation"
         options={{
-          title: 'Relajación',
+          title: 'Autorregulación',
           tabBarIcon: ({ size, color }) => (
-            <Heart size={size} color={color} />
+            <Heart size={isTablet ? size + 4 : size} color={color} />
           ),
         }}
       />
@@ -57,7 +69,7 @@ export default function TabLayout() {
         options={{
           title: 'Tareas',
           tabBarIcon: ({ size, color }) => (
-            <CheckSquare size={size} color={color} />
+            <CheckSquare size={isTablet ? size + 4 : size} color={color} />
           ),
         }}
       />
@@ -66,7 +78,7 @@ export default function TabLayout() {
         options={{
           title: 'Comunicación',
           tabBarIcon: ({ size, color }) => (
-            <MessageCircle size={size} color={color} />
+            <MessageCircle size={isTablet ? size + 4 : size} color={color} />
           ),
         }}
       />
