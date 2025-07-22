@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Animated,
   SafeAreaView,
   StatusBar,
   Platform,
   Dimensions,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { AccessibleButton } from './AccessibleButton';
 import { ChevronLeft, Play, Pause } from 'lucide-react-native';
 
@@ -31,11 +31,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
   const [duration, setDuration] = useState(1); // en minutos
   const [timeLeft, setTimeLeft] = useState(60); // en segundos
   const [phaseCounter, setPhaseCounter] = useState(0); // Contador para cada fase
-  const [scaleAnim] = useState(new Animated.Value(minScale));
-  const [colorAnim] = useState(new Animated.Value(0));
-  const [rotateAnim] = useState(new Animated.Value(0));
-  const [pulseAnim] = useState(new Animated.Value(1));
-  const [outerCircleAnim] = useState(new Animated.Value(1));
+  const lottieRef = useRef<LottieView>(null);
   
   // Referencias para limpiar intervalos
   const phaseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -76,11 +72,15 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
   useEffect(() => {
     if (isActive) {
       startBreathingCycle();
+      // Iniciar la animación de Lottie
+      lottieRef.current?.play();
     } else {
       // Limpiar animaciones cuando se pausa
       if (phaseTimerRef.current) clearInterval(phaseTimerRef.current);
       if (breathingCycleRef.current) clearTimeout(breathingCycleRef.current);
       setPhaseCounter(0);
+      // Pausar la animación de Lottie
+      lottieRef.current?.pause();
     }
     
     return () => {
@@ -105,24 +105,9 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
         if (phaseTimerRef.current) clearInterval(phaseTimerRef.current);
       }
     }, 1000);
-    
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: maxScale,
-        duration: 4000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(colorAnim, {
-        toValue: 1,
-        duration: 4000,
-        useNativeDriver: false,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 4000,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+
+    // Simular el ciclo completo de respiración (4+7+8 = 19 segundos)
+    setTimeout(() => {
       if (!isActive) return;
       
       // Fase retener (7 segundos)
@@ -138,29 +123,8 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
         }
       }, 1000);
       
-      // Animación de pulso suave durante la retención
-      const pulseAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.05,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 0.95,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      pulseAnimation.start();
-      
       breathingCycleRef.current = setTimeout(() => {
         if (!isActive) return;
-        
-        // Detener la animación de pulso
-        pulseAnimation.stop();
-        pulseAnim.setValue(1);
         
         // Fase exhalar por la boca (8 segundos)
         setPhase('exhala');
@@ -175,23 +139,7 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
           }
         }, 1000);
         
-        Animated.parallel([
-          Animated.timing(scaleAnim, {
-            toValue: minScale,
-            duration: 8000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(colorAnim, {
-            toValue: 0,
-            duration: 8000,
-            useNativeDriver: false,
-          }),
-          Animated.timing(rotateAnim, {
-            toValue: 0,
-            duration: 8000,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
+        setTimeout(() => {
           if (!isActive) return;
           
           // Pausa breve antes del siguiente ciclo (3 segundos)
@@ -203,9 +151,9 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
               startBreathingCycle();
             }
           }, 3000);
-        });
+        }, 8000); // 8 segundos de exhalación
       }, 7000); // 7 segundos de retención
-    });
+    }, 4000); // 4 segundos de inhalación
   };
 
   const toggleBreathing = () => {
@@ -220,26 +168,8 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
     setTimeLeft(duration * 60);
     setPhase('inhala');
     setPhaseCounter(0);
-    scaleAnim.setValue(minScale);
-    colorAnim.setValue(0);
-    rotateAnim.setValue(0);
-    pulseAnim.setValue(1);
+    lottieRef.current?.reset();
   };
-
-  const backgroundColor = colorAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: ['#E8F5E8', '#81C784', '#4CAF50'],
-  });
-
-  const pulseScale = pulseAnim.interpolate({
-    inputRange: [0.95, 1.05],
-    outputRange: [0.95, 1.05],
-  });
-
-  const outerCircleScale = outerCircleAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1.1, 1.3],
-  });
 
   const getPhaseText = () => {
     switch (phase) {
@@ -344,33 +274,19 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
             </View>
 
             <View style={styles.breathingContainer}>
-              <Animated.View
-                style={[
-                  styles.outerBreathingCircle,
-                  {
-                    transform: [
-                      { scale: outerCircleScale },
-                      { scale: scaleAnim }
-                    ],
-                    opacity: 0.3,
-                    backgroundColor: backgroundColor,
-                  },
-                ]}
-              />
-              <Animated.View
-                style={[
-                  styles.breathingCircle,
-                  {
-                    transform: [
-                      { scale: scaleAnim },
-                      { scale: phase === 'mantén' ? pulseScale : 1 }
-                    ],
-                    backgroundColor: backgroundColor,
-                  },
-                ]}
-              >
+              <View style={styles.lottieContainer}>
+                <LottieView
+                  ref={lottieRef}
+                  source={{
+                    uri: 'https://lottie.host/b8c8c8c8-8c8c-4c8c-8c8c-8c8c8c8c8c8c/b8c8c8c8c8.json'
+                  }}
+                  style={styles.lottieAnimation}
+                  loop={true}
+                  autoPlay={false}
+                  speed={0.5}
+                />
                 <Text style={styles.phaseText}>{getPhaseText()}</Text>
-              </Animated.View>
+              </View>
             </View>
 
             <View style={styles.instructions}>
@@ -497,35 +413,31 @@ const styles = StyleSheet.create({
     marginBottom: isTablet ? 40 : 32,
     position: 'relative',
   },
-  outerBreathingCircle: {
-    position: 'absolute',
-    width: isTablet ? 320 : 260,
-    height: isTablet ? 320 : 260,
-    borderRadius: isTablet ? 160 : 130,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  breathingCircle: {
+  lottieContainer: {
     width: isTablet ? 280 : 220,
     height: isTablet ? 280 : 220,
-    borderRadius: isTablet ? 140 : 110,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4CAF50',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
+    position: 'relative',
+  },
+  lottieAnimation: {
+    width: '100%',
+    height: '100%',
   },
   phaseText: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -50 }],
     fontSize: isTablet ? 24 : 20,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#2E7D32',
     textAlign: 'center',
     lineHeight: isTablet ? 32 : 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   durationSelector: {
     alignItems: 'center',
