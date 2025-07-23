@@ -278,12 +278,12 @@ export const BreathingExercise: React.FC<BreathingExerciseProps> = ({ onClose })
                 <LottieView
                   ref={lottieRef}
                   source={{
-                    uri: 'https://lottie.host/b8c8c8c8-8c8c-4c8c-8c8c-8c8c8c8c8c8c/b8c8c8c8c8.json'
+                    uri: 'https://lottie.host/8ff6e6af-f7da-4c7e-8065-78353b8e6f68/F6wSrtC9yU.lottie'
                   }}
                   style={styles.lottieAnimation}
                   loop={true}
                   autoPlay={false}
-                  speed={0.5}
+                  speed={0.3}
                 />
                 <Text style={styles.phaseText}>{getPhaseText()}</Text>
               </View>
