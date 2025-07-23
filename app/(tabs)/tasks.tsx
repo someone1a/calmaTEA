@@ -14,7 +14,7 @@ import { Calendar } from 'react-native-calendars';
 import { AccessibleButton } from '@/components/AccessibleButton';
 import { TaskCard } from '@/components/TaskCard';
 import { useTasks } from '@/contexts/TasksContext';
-import { Plus, X, Calendar, Clock, Bell } from 'lucide-react-native';
+import { Plus, X, Calendar as CalendarIcon, Clock, Bell } from 'lucide-react-native';
 
 interface TaskReminder {
   id: string;
@@ -298,7 +298,7 @@ export default function TasksScreen() {
                     onPress={() => setShowCalendar(true)}
                     accessibilityLabel="Abrir calendario para seleccionar fecha"
                   >
-                    <Calendar size={20} color="#4CAF50" />
+                    <CalendarIcon size={20} color="#4CAF50" />
                     <Text style={styles.datePickerText}>
                       {selectedDate ? formatSelectedDate(selectedDate) : 'Seleccionar fecha'}
                     </Text>
