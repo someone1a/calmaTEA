@@ -10,6 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { AccessibleButton } from '@/components/AccessibleButton';
 import { TaskCard } from '@/components/TaskCard';
 import { useTasks } from '@/contexts/TasksContext';
@@ -31,8 +32,10 @@ export default function TasksScreen() {
   
   // Estados para fecha límite y recordatorios
   const [hasDeadline, setHasDeadline] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [dueDate, setDueDate] = useState<Date | null>(null);
-  const [dueDateString, setDueDateString] = useState('');
+  const [hasTimeLimit, setHasTimeLimit] = useState(false);
   const [dueTimeString, setDueTimeString] = useState('');
   const [hasReminder, setHasReminder] = useState(false);
   const [selectedReminder, setSelectedReminder] = useState<TaskReminder | null>(null);
@@ -45,8 +48,10 @@ export default function TasksScreen() {
   const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   const presetReminders: TaskReminder[] = [
-    { id: '1', type: 'preset', value: '1_day', label: '1 día antes' },
-    { id: '2', type: 'preset', value: '1_hour', label: '1 hora antes' },
+    { id: '1', type: 'preset', value: '10_minutes', label: '10 minutos antes' },
+    { id: '2', type: 'preset', value: '30_minutes', label: '30 minutos antes' },
+    { id: '3', type: 'preset', value: '1_hour', label: '1 hora antes' },
+    { id: '4', type: 'preset', value: '1_day', label: '1 día antes' },
   ];
 
   const handleAddTask = () => {
@@ -56,10 +61,15 @@ export default function TasksScreen() {
     let finalReminder: TaskReminder | undefined = undefined;
 
     // Procesar fecha límite
-    if (hasDeadline && dueDateString && dueTimeString) {
-      const [day, month, year] = dueDateString.split('/').map(Number);
-      const [hours, minutes] = dueTimeString.split(':').map(Number);
-      finalDueDate = new Date(year, month - 1, day, hours, minutes);
+    if (hasDeadline && selectedDate) {
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      if (hasTimeLimit && dueTimeString) {
+        const [hours, minutes] = dueTimeString.split(':').map(Number);
+        finalDueDate = new Date(year, month - 1, day, hours, minutes);
+      } else {
+        // Si no tiene hora límite, establecer a las 23:59 del día seleccionado
+        finalDueDate = new Date(year, month - 1, day, 23, 59);
+      }
     }
 
     // Procesar recordatorio
@@ -85,8 +95,10 @@ export default function TasksScreen() {
     setNewTaskTitle('');
     setNewTaskDescription('');
     setHasDeadline(false);
+    setShowCalendar(false);
+    setSelectedDate('');
     setDueDate(null);
-    setDueDateString('');
+    setHasTimeLimit(false);
     setDueTimeString('');
     setHasReminder(false);
     setSelectedReminder(null);
@@ -120,6 +132,26 @@ export default function TasksScreen() {
     return `${hours}:${minutes}`;
   };
 
+  const handleDateSelect = (day: any) => {
+    setSelectedDate(day.dateString);
+    setShowCalendar(false);
+  };
+
+  const formatSelectedDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -242,7 +274,10 @@ export default function TasksScreen() {
                   style={[styles.optionButton, !hasDeadline && styles.selectedOption]}
                   onPress={() => {
                     setHasDeadline(false);
+                    setHasTimeLimit(false);
                     setHasReminder(false);
+                    setSelectedDate('');
+                    setDueTimeString('');
                   }}
                   accessibilityLabel="No, sin fecha límite"
                 >
@@ -253,55 +288,93 @@ export default function TasksScreen() {
               </View>
             </View>
 
-            {/* Campos de fecha y hora si tiene deadline */}
+            {/* Selector de fecha si tiene deadline */}
             {hasDeadline && (
               <>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Fecha de vencimiento (DD/MM/AAAA)</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={dueDateString}
-                    onChangeText={setDueDateString}
-                    placeholder="25/12/2024"
-                    accessibilityLabel="Campo de fecha de vencimiento"
-                  />
+                  <Text style={styles.inputLabel}>Selecciona la fecha límite</Text>
+                  <AccessibleButton
+                    style={styles.datePickerButton}
+                    onPress={() => setShowCalendar(true)}
+                    accessibilityLabel="Abrir calendario para seleccionar fecha"
+                  >
+                    <Calendar size={20} color="#4CAF50" />
+                    <Text style={styles.datePickerText}>
+                      {selectedDate ? formatSelectedDate(selectedDate) : 'Seleccionar fecha'}
+                    </Text>
+                  </AccessibleButton>
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Hora de vencimiento (HH:MM)</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={dueTimeString}
-                    onChangeText={setDueTimeString}
-                    placeholder="14:30"
-                    accessibilityLabel="Campo de hora de vencimiento"
-                  />
-                </View>
-
-                {/* Pregunta sobre recordatorio */}
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>¿Querés que te recuerde esta tarea?</Text>
-                  <View style={styles.optionButtons}>
-                    <AccessibleButton
-                      style={[styles.optionButton, hasReminder && styles.selectedOption]}
-                      onPress={() => setHasReminder(true)}
-                      accessibilityLabel="Sí, quiero recordatorio"
-                    >
-                      <Text style={[styles.optionText, hasReminder && styles.selectedOptionText]}>
-                        Sí
-                      </Text>
-                    </AccessibleButton>
-                    <AccessibleButton
-                      style={[styles.optionButton, !hasReminder && styles.selectedOption]}
-                      onPress={() => setHasReminder(false)}
-                      accessibilityLabel="No, sin recordatorio"
-                    >
-                      <Text style={[styles.optionText, !hasReminder && styles.selectedOptionText]}>
-                        No
-                      </Text>
-                    </AccessibleButton>
+                {/* Pregunta sobre hora límite */}
+                {selectedDate && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>¿Tiene una hora límite específica?</Text>
+                    <View style={styles.optionButtons}>
+                      <AccessibleButton
+                        style={[styles.optionButton, hasTimeLimit && styles.selectedOption]}
+                        onPress={() => setHasTimeLimit(true)}
+                        accessibilityLabel="Sí, tiene hora límite"
+                      >
+                        <Text style={[styles.optionText, hasTimeLimit && styles.selectedOptionText]}>
+                          Sí
+                        </Text>
+                      </AccessibleButton>
+                      <AccessibleButton
+                        style={[styles.optionButton, !hasTimeLimit && styles.selectedOption]}
+                        onPress={() => {
+                          setHasTimeLimit(false);
+                          setDueTimeString('');
+                        }}
+                        accessibilityLabel="No, solo fecha"
+                      >
+                        <Text style={[styles.optionText, !hasTimeLimit && styles.selectedOptionText]}>
+                          No, solo fecha
+                        </Text>
+                      </AccessibleButton>
+                    </View>
                   </View>
-                </View>
+                )}
+
+                {/* Campo de hora si tiene hora límite */}
+                {hasTimeLimit && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Hora límite (HH:MM)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={dueTimeString}
+                      onChangeText={setDueTimeString}
+                      placeholder="14:30"
+                      accessibilityLabel="Campo de hora límite"
+                    />
+                  </View>
+                )}
+
+                {/* Pregunta sobre recordatorio solo si hay fecha seleccionada */}
+                {selectedDate && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>¿Querés que te recuerde esta tarea?</Text>
+                    <View style={styles.optionButtons}>
+                      <AccessibleButton
+                        style={[styles.optionButton, hasReminder && styles.selectedOption]}
+                        onPress={() => setHasReminder(true)}
+                        accessibilityLabel="Sí, quiero recordatorio"
+                      >
+                        <Text style={[styles.optionText, hasReminder && styles.selectedOptionText]}>
+                          Sí
+                        </Text>
+                      </AccessibleButton>
+                      <AccessibleButton
+                        style={[styles.optionButton, !hasReminder && styles.selectedOption]}
+                        onPress={() => setHasReminder(false)}
+                        accessibilityLabel="No, sin recordatorio"
+                      >
+                        <Text style={[styles.optionText, !hasReminder && styles.selectedOptionText]}>
+                          No
+                        </Text>
+                      </AccessibleButton>
+                    </View>
+                  </View>
+                )}
 
                 {/* Opciones de recordatorio */}
                 {hasReminder && (
@@ -439,6 +512,72 @@ export default function TasksScreen() {
               </AccessibleButton>
             </View>
           </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Modal del calendario */}
+      <Modal
+        visible={showCalendar}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowCalendar(false)}
+      >
+        <SafeAreaView style={styles.calendarModalContainer}>
+          <View style={styles.calendarModalHeader}>
+            <Text style={styles.calendarModalTitle}>Seleccionar Fecha</Text>
+            <AccessibleButton
+              style={styles.closeButton}
+              onPress={() => setShowCalendar(false)}
+              accessibilityLabel="Cerrar calendario"
+            >
+              <X size={24} color="#757575" />
+            </AccessibleButton>
+          </View>
+
+          <View style={styles.calendarContainer}>
+            <Calendar
+              onDayPress={handleDateSelect}
+              markedDates={{
+                [selectedDate]: {
+                  selected: true,
+                  selectedColor: '#4CAF50',
+                },
+              }}
+              minDate={getTodayString()}
+              theme={{
+                backgroundColor: '#ffffff',
+                calendarBackground: '#ffffff',
+                textSectionTitleColor: '#4CAF50',
+                selectedDayBackgroundColor: '#4CAF50',
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: '#4CAF50',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                dotColor: '#4CAF50',
+                selectedDotColor: '#ffffff',
+                arrowColor: '#4CAF50',
+                disabledArrowColor: '#d9e1e8',
+                monthTextColor: '#4CAF50',
+                indicatorColor: '#4CAF50',
+                textDayFontFamily: 'System',
+                textMonthFontFamily: 'System',
+                textDayHeaderFontFamily: 'System',
+                textDayFontWeight: '500',
+                textMonthFontWeight: 'bold',
+                textDayHeaderFontWeight: '600',
+                textDayFontSize: 16,
+                textMonthFontSize: 18,
+                textDayHeaderFontSize: 14,
+              }}
+              style={styles.calendar}
+            />
+
+            <View style={styles.calendarFooter}>
+              <Text style={styles.calendarFooterText}>
+                {selectedDate ? `Fecha seleccionada: ${formatSelectedDate(selectedDate)}` : 'Selecciona una fecha'}
+              </Text>
+            </View>
+          </View>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -785,5 +924,71 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  datePickerButton: {
+    backgroundColor: '#F0F9F0',
+    borderWidth: 2,
+    borderColor: '#C8E6C9',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#2E7D32',
+    fontWeight: '500',
+    flex: 1,
+  },
+  calendarModalContainer: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  calendarModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  calendarModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  calendarContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  calendar: {
+    borderRadius: 16,
+    paddingBottom: 20,
+  },
+  calendarFooter: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E8F5E8',
+    backgroundColor: '#F8FDF8',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  calendarFooterText: {
+    fontSize: 16,
+    color: '#2E7D32',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
