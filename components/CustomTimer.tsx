@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import { Audio } from 'expo-av';
 import { AccessibleButton } from './AccessibleButton';
 import { ChevronLeft, Play, Pause, RotateCcw } from 'lucide-react-native';
 
@@ -21,11 +22,27 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
       StatusBar.setBarStyle('dark-content', true);
     }
+
+    // Configurar audio
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: false,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    });
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -37,6 +54,7 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
           if (prevSeconds <= 1) {
             setIsRunning(false);
             setIsFinished(true);
+            playFinishedSound();
             return 0;
           }
           return prevSeconds - 1;
@@ -46,6 +64,28 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
 
     return () => clearInterval(interval);
   }, [isRunning, totalSeconds]);
+
+  const playFinishedSound = async () => {
+    try {
+      // En una implementación real, cargarías el archivo de audio desde assets
+      // const { sound } = await Audio.Sound.createAsync(
+      //   require('../assets/sounds/timer-finished.mp3')
+      // );
+      // await sound.playAsync();
+      // setSound(sound);
+      
+      // Por ahora, simulamos con un console.log
+      console.log('🔔 ¡Tiempo terminado! Reproduciendo sonido de notificación...');
+      
+      // Simular vibración en dispositivos móviles
+      if (Platform.OS !== 'web') {
+        // En una implementación real usarías Haptics.notificationAsync()
+        console.log('📳 Vibración de notificación');
+      }
+    } catch (error) {
+      console.error('Error al reproducir sonido:', error);
+    }
+  };
 
   const startTimer = () => {
     if (totalSeconds === 0) {
@@ -71,6 +111,10 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
     setIsRunning(false);
     setTotalSeconds(0);
     setIsFinished(false);
+    if (sound) {
+      sound.unloadAsync();
+      setSound(null);
+    }
   };
 
   const formatTime = (totalSecs: number) => {
@@ -109,7 +153,7 @@ export const CustomTimer: React.FC<CustomTimerProps> = ({ onClose }) => {
             
             {isFinished && (
               <Text style={styles.finishedText}>
-                Time's up! 🎉
+                ¡Tiempo terminado! 🎉
               </Text>
             )}
           </View>

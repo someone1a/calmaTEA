@@ -47,7 +47,7 @@ assets/                # Recursos estáticos
 
 1. Clona el repositorio:
 ```bash
-git clone https://github.com/someone1a/Mi-AutistAPP.git
+git clone https://github.com/someone1a/calmaTEA.git
 ```
 
 2. Instala las dependencias:

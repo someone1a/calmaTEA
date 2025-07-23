@@ -131,6 +131,18 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             let reminderTime = dueDateTimestamp;
             
             switch (reminder.value) {
+              case '10_minutes':
+                reminderTime = dueDateTimestamp - (10 * 60 * 1000);
+                break;
+              case '30_minutes':
+                reminderTime = dueDateTimestamp - (30 * 60 * 1000);
+                break;
+              case '10_minutes':
+                reminderTime = dueDateTimestamp - (10 * 60 * 1000);
+                break;
+              case '30_minutes':
+                reminderTime = dueDateTimestamp - (30 * 60 * 1000);
+                break;
               case '1_day':
                 reminderTime = dueDateTimestamp - (24 * 60 * 60 * 1000);
                 break;

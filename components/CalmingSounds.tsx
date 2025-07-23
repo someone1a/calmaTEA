@@ -22,6 +22,7 @@ interface Sound {
   description: string;
   icon: string;
   color: string;
+  audioFile?: string;
 }
 
 const sounds: Sound[] = [
@@ -31,6 +32,7 @@ const sounds: Sound[] = [
     description: 'Sonidos relajantes de lluvia',
     icon: '🌧️',
     color: '#64B5F6',
+    audioFile: 'rain.mp3',
   },
   {
     id: 'ocean',
@@ -38,6 +40,7 @@ const sounds: Sound[] = [
     description: 'Sonidos pacíficos del océano',
     icon: '🌊',
     color: '#4FC3F7',
+    audioFile: 'ocean.mp3',
   },
   {
     id: 'birds',
@@ -45,6 +48,7 @@ const sounds: Sound[] = [
     description: 'Cantos de pájaros en la naturaleza',
     icon: '🐦',
     color: '#81C784',
+    audioFile: 'birds.mp3',
   },
   {
     id: 'whitenoise',
@@ -52,6 +56,7 @@ const sounds: Sound[] = [
     description: 'Sonido constante y relajante',
     icon: '📻',
     color: '#A1887F',
+    audioFile: 'whitenoise.mp3',
   },
 ];
 
@@ -90,13 +95,22 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
         setSound(null);
       }
 
-      // Simular carga de sonido (en una app real cargarías archivos de audio)
-      // Por ahora solo simulamos la funcionalidad
+      const selectedSound = sounds.find(s => s.id === soundId);
+      if (!selectedSound) return;
+
+      // En una implementación real, cargarías el archivo de audio desde assets
+      // const { sound: newSound } = await Audio.Sound.createAsync(
+      //   { uri: `../assets/sounds/relaxing/${selectedSound.audioFile}` }
+      // );
+      // await newSound.setIsLoopingAsync(isLooping);
+      // await newSound.playAsync();
+      // setSound(newSound);
+      
       setPlayingSound(soundId);
       setIsPlaying(true);
       
-      // Simular sonido con timeout (en una app real usarías archivos de audio reales)
-      console.log(`Reproduciendo: ${sounds.find(s => s.id === soundId)?.name}`);
+      console.log(`🎵 Reproduciendo: ${selectedSound.name} (${selectedSound.audioFile})`);
+      console.log(`🔁 Repetición: ${isLooping ? 'Activada' : 'Desactivada'}`);
       
     } catch (error) {
       console.error('Error al reproducir sonido:', error);
@@ -104,8 +118,11 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
   };
 
   const pauseSound = async () => {
+    if (sound) {
+      await sound.pauseAsync();
+    }
     setIsPlaying(false);
-    console.log('Sonido pausado');
+    console.log('⏸️ Sonido pausado');
   };
 
   const stopSound = async () => {
@@ -115,12 +132,15 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
     }
     setPlayingSound(null);
     setIsPlaying(false);
-    console.log('Sonido detenido');
+    console.log('⏹️ Sonido detenido');
   };
 
   const toggleLoop = () => {
+    if (sound) {
+      sound.setIsLoopingAsync(!isLooping);
+    }
     setIsLooping(!isLooping);
-    console.log(`Repetición ${!isLooping ? 'activada' : 'desactivada'}`);
+    console.log(`🔁 Repetición ${!isLooping ? 'activada' : 'desactivada'}`);
   };
 
   return (
@@ -193,6 +213,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
                 style={styles.controlButton}
                 onPress={isPlaying ? pauseSound : () => playSound(playingSound)}
                 accessibilityLabel={isPlaying ? 'Pausar' : 'Reproducir'}
+                accessibilityHint={`${isPlaying ? 'Pausar' : 'Reanudar'} la reproducción del sonido actual`}
               >
                 {isPlaying ? (
                   <Pause size={24} color="#2196F3" />
@@ -205,6 +226,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
                 style={styles.controlButton}
                 onPress={stopSound}
                 accessibilityLabel="Detener"
+                accessibilityHint="Detener completamente la reproducción del sonido"
               >
                 <Square size={24} color="#F44336" />
               </AccessibleButton>
@@ -213,6 +235,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
                 style={[styles.controlButton, isLooping && styles.activeControl]}
                 onPress={toggleLoop}
                 accessibilityLabel={isLooping ? 'Desactivar repetición' : 'Activar repetición'}
+                accessibilityHint={`${isLooping ? 'Desactivar' : 'Activar'} la repetición automática del sonido`}
               >
                 <RotateCcw size={24} color={isLooping ? '#FFFFFF' : '#9E9E9E'} />
               </AccessibleButton>

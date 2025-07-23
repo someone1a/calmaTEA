@@ -43,22 +43,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
   const [editTitle, setEditTitle] = React.useState(task.title);
   const [editDescription, setEditDescription] = React.useState(task.description);
   const [editHasDeadline, setEditHasDeadline] = React.useState(!!task.dueDate);
-  const [editDueDateString, setEditDueDateString] = React.useState('');
+  const [editSelectedDate, setEditSelectedDate] = React.useState('');
+  const [editHasTimeLimit, setEditHasTimeLimit] = React.useState(false);
   const [editDueTimeString, setEditDueTimeString] = React.useState('');
   const [editHasReminder, setEditHasReminder] = React.useState(task.hasReminder);
   const [editSelectedReminder, setEditSelectedReminder] = React.useState<TaskReminder | null>(task.reminder || null);
+  const [showEditCalendar, setShowEditCalendar] = React.useState(false);
 
   React.useEffect(() => {
     if (task.dueDate) {
       const date = new Date(task.dueDate);
-      setEditDueDateString(formatDateForInput(date));
+      setEditSelectedDate(date.toISOString().split('T')[0]);
+      setEditHasTimeLimit(date.getHours() !== 23 || date.getMinutes() !== 59);
       setEditDueTimeString(formatTimeForInput(date));
     }
   }, [task.dueDate]);
 
   const presetReminders: TaskReminder[] = [
-    { id: '1', type: 'preset', value: '1_day', label: '1 día antes' },
-    { id: '2', type: 'preset', value: '1_hour', label: '1 hora antes' },
+    { id: '1', type: 'preset', value: '10_minutes', label: '10 minutos antes' },
+    { id: '2', type: 'preset', value: '30_minutes', label: '30 minutos antes' },
+    { id: '3', type: 'preset', value: '1_hour', label: '1 hora antes' },
+    { id: '4', type: 'preset', value: '1_day', label: '1 día antes' },
   ];
 
   const handleDelete = () => {
@@ -81,10 +86,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
     let finalReminder: TaskReminder | undefined = undefined;
 
     // Procesar fecha límite
-    if (editHasDeadline && editDueDateString && editDueTimeString) {
-      const [day, month, year] = editDueDateString.split('/').map(Number);
-      const [hours, minutes] = editDueTimeString.split(':').map(Number);
-      finalDueDate = new Date(year, month - 1, day, hours, minutes);
+    if (editHasDeadline && editSelectedDate) {
+      const [year, month, day] = editSelectedDate.split('-').map(Number);
+      if (editHasTimeLimit && editDueTimeString) {
+        const [hours, minutes] = editDueTimeString.split(':').map(Number);
+        finalDueDate = new Date(year, month - 1, day, hours, minutes);
+      } else {
+        // Si no tiene hora límite, establecer a las 23:59 del día seleccionado
+        finalDueDate = new Date(year, month - 1, day, 23, 59);
+      }
     }
 
     // Procesar recordatorio
@@ -103,17 +113,31 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
     setShowEditModal(false);
   };
 
-  const formatDateForInput = (date: Date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   const formatTimeForInput = (date: Date) => {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
+  };
+
+  const handleEditDateSelect = (day: any) => {
+    setEditSelectedDate(day.dateString);
+    setShowEditCalendar(false);
+  };
+
+  const formatSelectedDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   };
 
   const formatDueDate = (date: Date) => {
@@ -281,6 +305,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
                   onPress={() => {
                     setEditHasDeadline(false);
                     setEditHasReminder(false);
+                    setEditSelectedDate('');
+                    setEditHasTimeLimit(false);
+                    setEditDueTimeString('');
                   }}
                 >
                   <Text style={[styles.optionText, !editHasDeadline && styles.selectedOptionText]}>
@@ -293,46 +320,84 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
             {editHasDeadline && (
               <>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Fecha (DD/MM/AAAA)</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={editDueDateString}
-                    onChangeText={setEditDueDateString}
-                    placeholder="25/12/2024"
-                  />
+                  <Text style={styles.inputLabel}>Selecciona la fecha límite</Text>
+                  <AccessibleButton
+                    style={styles.datePickerButton}
+                    onPress={() => setShowEditCalendar(true)}
+                    accessibilityLabel="Abrir calendario para seleccionar fecha"
+                  >
+                    <Calendar size={20} color="#4CAF50" />
+                    <Text style={styles.datePickerText}>
+                      {editSelectedDate ? formatSelectedDate(editSelectedDate) : 'Seleccionar fecha'}
+                    </Text>
+                  </AccessibleButton>
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Hora (HH:MM)</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={editDueTimeString}
-                    onChangeText={setEditDueTimeString}
-                    placeholder="14:30"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>¿Recordatorio?</Text>
-                  <View style={styles.optionButtons}>
-                    <AccessibleButton
-                      style={[styles.optionButton, editHasReminder && styles.selectedOption]}
-                      onPress={() => setEditHasReminder(true)}
-                    >
-                      <Text style={[styles.optionText, editHasReminder && styles.selectedOptionText]}>
-                        Sí
-                      </Text>
-                    </AccessibleButton>
-                    <AccessibleButton
-                      style={[styles.optionButton, !editHasReminder && styles.selectedOption]}
-                      onPress={() => setEditHasReminder(false)}
-                    >
-                      <Text style={[styles.optionText, !editHasReminder && styles.selectedOptionText]}>
-                        No
-                      </Text>
-                    </AccessibleButton>
+                {editSelectedDate && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>¿Tiene una hora límite específica?</Text>
+                    <View style={styles.optionButtons}>
+                      <AccessibleButton
+                        style={[styles.optionButton, editHasTimeLimit && styles.selectedOption]}
+                        onPress={() => setEditHasTimeLimit(true)}
+                        accessibilityLabel="Sí, tiene hora límite"
+                      >
+                        <Text style={[styles.optionText, editHasTimeLimit && styles.selectedOptionText]}>
+                          Sí
+                        </Text>
+                      </AccessibleButton>
+                      <AccessibleButton
+                        style={[styles.optionButton, !editHasTimeLimit && styles.selectedOption]}
+                        onPress={() => {
+                          setEditHasTimeLimit(false);
+                          setEditDueTimeString('');
+                        }}
+                        accessibilityLabel="No, solo fecha"
+                      >
+                        <Text style={[styles.optionText, !editHasTimeLimit && styles.selectedOptionText]}>
+                          No, solo fecha
+                        </Text>
+                      </AccessibleButton>
+                    </View>
                   </View>
-                </View>
+                )}
+
+                {editHasTimeLimit && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Hora límite (HH:MM)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={editDueTimeString}
+                      onChangeText={setEditDueTimeString}
+                      placeholder="14:30"
+                      accessibilityLabel="Campo de hora límite"
+                    />
+                  </View>
+                )}
+
+                {editSelectedDate && (
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>¿Recordatorio?</Text>
+                    <View style={styles.optionButtons}>
+                      <AccessibleButton
+                        style={[styles.optionButton, editHasReminder && styles.selectedOption]}
+                        onPress={() => setEditHasReminder(true)}
+                      >
+                        <Text style={[styles.optionText, editHasReminder && styles.selectedOptionText]}>
+                          Sí
+                        </Text>
+                      </AccessibleButton>
+                      <AccessibleButton
+                        style={[styles.optionButton, !editHasReminder && styles.selectedOption]}
+                        onPress={() => setEditHasReminder(false)}
+                      >
+                        <Text style={[styles.optionText, !editHasReminder && styles.selectedOptionText]}>
+                          No
+                        </Text>
+                      </AccessibleButton>
+                    </View>
+                  </View>
+                )}
 
                 {editHasReminder && (
                   <View style={styles.inputGroup}>
@@ -378,6 +443,72 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
               </AccessibleButton>
             </View>
           </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Modal del calendario para edición */}
+      <Modal
+        visible={showEditCalendar}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowEditCalendar(false)}
+      >
+        <SafeAreaView style={styles.calendarModalContainer}>
+          <View style={styles.calendarModalHeader}>
+            <Text style={styles.calendarModalTitle}>Seleccionar Fecha</Text>
+            <AccessibleButton
+              style={styles.closeButton}
+              onPress={() => setShowEditCalendar(false)}
+              accessibilityLabel="Cerrar calendario"
+            >
+              <X size={24} color="#757575" />
+            </AccessibleButton>
+          </View>
+
+          <View style={styles.calendarContainer}>
+            <Calendar
+              onDayPress={handleEditDateSelect}
+              markedDates={{
+                [editSelectedDate]: {
+                  selected: true,
+                  selectedColor: '#4CAF50',
+                },
+              }}
+              minDate={getTodayString()}
+              theme={{
+                backgroundColor: '#ffffff',
+                calendarBackground: '#ffffff',
+                textSectionTitleColor: '#4CAF50',
+                selectedDayBackgroundColor: '#4CAF50',
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: '#4CAF50',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                dotColor: '#4CAF50',
+                selectedDotColor: '#ffffff',
+                arrowColor: '#4CAF50',
+                disabledArrowColor: '#d9e1e8',
+                monthTextColor: '#4CAF50',
+                indicatorColor: '#4CAF50',
+                textDayFontFamily: 'System',
+                textMonthFontFamily: 'System',
+                textDayHeaderFontFamily: 'System',
+                textDayFontWeight: '500',
+                textMonthFontWeight: 'bold',
+                textDayHeaderFontWeight: '600',
+                textDayFontSize: 16,
+                textMonthFontSize: 18,
+                textDayHeaderFontSize: 14,
+              }}
+              style={styles.calendar}
+            />
+
+            <View style={styles.calendarFooter}>
+              <Text style={styles.calendarFooterText}>
+                {editSelectedDate ? `Fecha seleccionada: ${formatSelectedDate(editSelectedDate)}` : 'Selecciona una fecha'}
+              </Text>
+            </View>
+          </View>
         </SafeAreaView>
       </Modal>
     </>
@@ -596,5 +727,71 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  datePickerButton: {
+    backgroundColor: '#F0F9F0',
+    borderWidth: 2,
+    borderColor: '#C8E6C9',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#2E7D32',
+    fontWeight: '500',
+    flex: 1,
+  },
+  calendarModalContainer: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  calendarModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  calendarModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  calendarContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  calendar: {
+    borderRadius: 16,
+    paddingBottom: 20,
+  },
+  calendarFooter: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E8F5E8',
+    backgroundColor: '#F8FDF8',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  calendarFooterText: {
+    fontSize: 16,
+    color: '#2E7D32',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
