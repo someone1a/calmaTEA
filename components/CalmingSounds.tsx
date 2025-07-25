@@ -32,7 +32,7 @@ const sounds: Sound[] = [
     description: 'Sonidos relajantes de lluvia',
     icon: '🌧️',
     color: '#64B5F6',
-    audioFile: 'rain.mp3',
+    audioFile: 'assets/sounds/relaxing/rain.mp3',
   },
   {
     id: 'ocean',
@@ -40,7 +40,7 @@ const sounds: Sound[] = [
     description: 'Sonidos pacíficos del océano',
     icon: '🌊',
     color: '#4FC3F7',
-    audioFile: 'ocean.mp3',
+    audioFile: 'assets/sounds/relaxing/ocean.mp3',
   },
   {
     id: 'birds',
@@ -48,7 +48,7 @@ const sounds: Sound[] = [
     description: 'Cantos de pájaros en la naturaleza',
     icon: '🐦',
     color: '#81C784',
-    audioFile: 'birds.mp3',
+    audioFile: 'assets/sounds/relaxing/birds.mp3',
   },
   {
     id: 'whitenoise',
@@ -56,7 +56,7 @@ const sounds: Sound[] = [
     description: 'Sonido constante y relajante',
     icon: '📻',
     color: '#A1887F',
-    audioFile: 'whitenoise.mp3',
+    audioFile: 'assets/sounds/relaxing/white-noice.wav',
   },
 ];
 
