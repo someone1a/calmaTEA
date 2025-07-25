@@ -48,7 +48,7 @@ const sounds: Sound[] = [
     description: 'Cantos de pájaros en la naturaleza',
     icon: '🐦',
     color: '#81C784',
-    audioFile: 'assets/sounds/relaxing/birds.mp3',
+    audioFile: 'birds.mp3',
   },
   {
     id: 'whitenoise',
@@ -56,7 +56,7 @@ const sounds: Sound[] = [
     description: 'Sonido constante y relajante',
     icon: '📻',
     color: '#A1887F',
-    audioFile: 'assets/sounds/relaxing/white-noice.wav',
+    audioFile: 'white-noice.wav',
   },
 ];
 
@@ -97,6 +97,7 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
 
       const selectedSound = sounds.find(s => s.id === soundId);
       if (!selectedSound) return;
+
 
       // En una implementación real, cargarías el archivo de audio desde assets
       // const { sound: newSound } = await Audio.Sound.createAsync(

@@ -8,7 +8,7 @@ import {
   Modal,
   TextInput,
   Alert,
-  Platform,
+  Platform
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { AccessibleButton } from '@/components/AccessibleButton';
