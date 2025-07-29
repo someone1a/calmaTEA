@@ -3,7 +3,7 @@
     "name": "calmaTEA",
     "slug": "calmatea",
     "description": "Una app diseñada para ayudar a las personas con autismo a gestionar su día a día.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "assets/images/favicon.png",
     "scheme": "myapp",
@@ -12,7 +12,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.someone1a.calmatea",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.2"
     },
     "android": {
       "package": "com.someone1a.calmatea",

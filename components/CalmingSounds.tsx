@@ -11,6 +11,7 @@ import {
 import { AccessibleButton } from './AccessibleButton';
 import { ChevronLeft, Play, Pause, Square, RotateCcw } from 'lucide-react-native';
 import { Audio } from 'expo-av';
+import * as Notifications from 'expo-notifications';
 
 interface CalmingSoundsProps {
   onClose: () => void;
@@ -22,8 +23,14 @@ interface Sound {
   description: string;
   icon: string;
   color: string;
-  audioFile?: string;
 }
+
+const soundFiles = {
+  rain: require('../assets/sounds/relaxing/rain.mp3'),
+  ocean: require('../assets/sounds/relaxing/ocean.wav'),
+  birds: require('../assets/sounds/relaxing/birds.mp3'),
+  whitenoise: require('../assets/sounds/relaxing/white-noice.wav'),
+};
 
 const sounds: Sound[] = [
   {
@@ -32,7 +39,6 @@ const sounds: Sound[] = [
     description: 'Sonidos relajantes de lluvia',
     icon: '🌧️',
     color: '#64B5F6',
-    audioFile: 'assets/sounds/relaxing/rain.mp3',
   },
   {
     id: 'ocean',
@@ -40,7 +46,6 @@ const sounds: Sound[] = [
     description: 'Sonidos pacíficos del océano',
     icon: '🌊',
     color: '#4FC3F7',
-    audioFile: 'assets/sounds/relaxing/ocean.mp3',
   },
   {
     id: 'birds',
@@ -48,7 +53,6 @@ const sounds: Sound[] = [
     description: 'Cantos de pájaros en la naturaleza',
     icon: '🐦',
     color: '#81C784',
-    audioFile: 'birds.mp3',
   },
   {
     id: 'whitenoise',
@@ -56,7 +60,6 @@ const sounds: Sound[] = [
     description: 'Sonido constante y relajante',
     icon: '📻',
     color: '#A1887F',
-    audioFile: 'white-noice.wav',
   },
 ];
 
@@ -67,18 +70,31 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      StatusBar.setBarStyle('dark-content', true);
-    }
+    const configureApp = async () => {
+      if (Platform.OS === 'ios') {
+        StatusBar.setBarStyle('dark-content', true);
+      }
 
-    // Configurar audio
-    Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      staysActiveInBackground: true,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
-    });
+      // Configurar audio
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: true,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+
+      // Configurar notificaciones
+      await Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        }),
+      });
+    };
+
+    configureApp();
 
     return () => {
       if (sound) {
@@ -86,6 +102,22 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
       }
     };
   }, []);
+
+  const showNotification = async (title: string, body: string) => {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          sound: false, // No reproducimos sonido en la notificación para no interferir con el audio
+          data: { screen: 'relaxation' },
+        },
+        trigger: null, // Mostrar inmediatamente
+      });
+    } catch (error) {
+      console.error('Error al mostrar notificación:', error);
+    }
+  };
 
   const playSound = async (soundId: string) => {
     try {
@@ -98,19 +130,23 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
       const selectedSound = sounds.find(s => s.id === soundId);
       if (!selectedSound) return;
 
-
-      // En una implementación real, cargarías el archivo de audio desde assets
-      // const { sound: newSound } = await Audio.Sound.createAsync(
-      //   { uri: `../assets/sounds/relaxing/${selectedSound.audioFile}` }
-      // );
-      // await newSound.setIsLoopingAsync(isLooping);
-      // await newSound.playAsync();
-      // setSound(newSound);
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        soundFiles[soundId as keyof typeof soundFiles]
+      );
       
+      await newSound.setIsLoopingAsync(isLooping);
+      await newSound.playAsync();
+      setSound(newSound);
       setPlayingSound(soundId);
       setIsPlaying(true);
       
-      console.log(`🎵 Reproduciendo: ${selectedSound.name} (${selectedSound.audioFile})`);
+      // Mostrar notificación
+      await showNotification(
+        'Sonido Relajante Activo',
+        `Reproduciendo: ${selectedSound.name}${isLooping ? ' (en bucle)' : ''}`
+      );
+      
+      console.log(`🎵 Reproduciendo: ${selectedSound.name}`);
       console.log(`🔁 Repetición: ${isLooping ? 'Activada' : 'Desactivada'}`);
       
     } catch (error) {
@@ -121,6 +157,10 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
   const pauseSound = async () => {
     if (sound) {
       await sound.pauseAsync();
+      await showNotification(
+        'Sonido Pausado',
+        'El sonido relajante ha sido pausado'
+      );
     }
     setIsPlaying(false);
     console.log('⏸️ Sonido pausado');
@@ -129,6 +169,10 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
   const stopSound = async () => {
     if (sound) {
       await sound.unloadAsync();
+      await showNotification(
+        'Sonido Detenido',
+        'El sonido relajante ha sido detenido'
+      );
       setSound(null);
     }
     setPlayingSound(null);
@@ -136,9 +180,16 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
     console.log('⏹️ Sonido detenido');
   };
 
-  const toggleLoop = () => {
+  const toggleLoop = async () => {
     if (sound) {
-      sound.setIsLoopingAsync(!isLooping);
+      await sound.setIsLoopingAsync(!isLooping);
+      const selectedSound = sounds.find(s => s.id === playingSound);
+      if (selectedSound) {
+        await showNotification(
+          'Modo de Reproducción Cambiado',
+          `${selectedSound.name}: Repetición ${!isLooping ? 'activada' : 'desactivada'}`
+        );
+      }
     }
     setIsLooping(!isLooping);
     console.log(`🔁 Repetición ${!isLooping ? 'activada' : 'desactivada'}`);
@@ -173,11 +224,11 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
           {sounds.map((soundItem) => (
             <AccessibleButton
               key={soundItem.id}
-              style={[
-                styles.soundCard,
-                playingSound === soundItem.id && styles.playingCard,
-                { borderLeftColor: soundItem.color }
-              ]}
+              style={{
+                ...styles.soundCard,
+                ...(playingSound === soundItem.id ? styles.playingCard : {}),
+                borderLeftColor: soundItem.color
+              }}
               onPress={() => playSound(soundItem.id)}
               accessibilityLabel={`Sonido de ${soundItem.name}`}
               accessibilityHint={`${playingSound === soundItem.id ? 'Detener' : 'Reproducir'} ${soundItem.description}`}
@@ -233,7 +284,10 @@ export const CalmingSounds: React.FC<CalmingSoundsProps> = ({ onClose }) => {
               </AccessibleButton>
 
               <AccessibleButton
-                style={[styles.controlButton, isLooping && styles.activeControl]}
+                style={{
+                  ...styles.controlButton,
+                  ...(isLooping ? styles.activeControl : {})
+                }}
                 onPress={toggleLoop}
                 accessibilityLabel={isLooping ? 'Desactivar repetición' : 'Activar repetición'}
                 accessibilityHint={`${isLooping ? 'Desactivar' : 'Activar'} la repetición automática del sonido`}

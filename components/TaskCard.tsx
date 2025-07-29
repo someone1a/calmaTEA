@@ -9,6 +9,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { AccessibleButton } from './AccessibleButton';
 import { CircleCheck as CheckCircle, Circle, Trash2, Calendar, Clock, Bell, CreditCard as Edit3, X } from 'lucide-react-native';
 
@@ -81,7 +82,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     let finalDueDate: Date | undefined = undefined;
     let finalReminder: TaskReminder | undefined = undefined;
 
@@ -100,7 +101,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
     // Procesar recordatorio
     if (editHasReminder && finalDueDate && editSelectedReminder) {
       finalReminder = editSelectedReminder;
+      
+      // Programar notificación del recordatorio
+      const reminderTime = calculateReminderTime(finalDueDate, editSelectedReminder);
+      await showNotification(
+        '¡Recordatorio de Tarea!',
+        `La tarea "${editTitle}" vence ${finalReminder.label}`,
+        reminderTime
+      );
     }
+
+    // Notificar cambios en la tarea
+    await showNotification(
+      'Tarea Actualizada',
+      `La tarea "${editTitle}" ha sido actualizada${finalDueDate ? ` y vence el ${formatDueDate(finalDueDate)}` : ''}`
+    );
 
     onUpdate(task.id, {
       title: editTitle,
@@ -140,6 +155,44 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
     return today.toISOString().split('T')[0];
   };
 
+  const showNotification = async (title: string, body: string, trigger?: Date) => {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          sound: 'notification.wav',
+          data: { taskId: task.id },
+        },
+        trigger: trigger ? {
+          date: trigger,
+          seconds: 1,
+        } : null,
+      });
+    } catch (error) {
+      console.error('Error al programar notificación:', error);
+    }
+  };
+
+  const calculateReminderTime = (dueDate: Date, reminder: TaskReminder): Date => {
+    const reminderDate = new Date(dueDate);
+    switch (reminder.value) {
+      case '10_minutes':
+        reminderDate.setMinutes(reminderDate.getMinutes() - 10);
+        break;
+      case '30_minutes':
+        reminderDate.setMinutes(reminderDate.getMinutes() - 30);
+        break;
+      case '1_hour':
+        reminderDate.setHours(reminderDate.getHours() - 1);
+        break;
+      case '1_day':
+        reminderDate.setDate(reminderDate.getDate() - 1);
+        break;
+    }
+    return reminderDate;
+  };
+
   const formatDueDate = (date: Date) => {
     const now = new Date();
     const diffTime = date.getTime() - now.getTime();
@@ -177,7 +230,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onUpdate, on
       ]}>
         <AccessibleButton
           style={styles.checkButton}
-          onPress={() => onToggle(task.id)}
+          onPress={async () => {
+            // Mostrar notificación al completar/descompletar la tarea
+            await showNotification(
+              task.completed ? 'Tarea Pendiente' : 'Tarea Completada',
+              task.completed
+                ? `La tarea "${task.title}" ha sido marcada como pendiente`
+                : `¡Felicidades! Has completado la tarea "${task.title}"`
+            );
+            onToggle(task.id);
+          }}
           accessibilityLabel={task.completed ? 'Marcar tarea como incompleta' : 'Marcar tarea como completa'}
           accessibilityHint={`Cambiar estado de completado para ${task.title}`}
         >
