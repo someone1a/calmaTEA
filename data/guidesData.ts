@@ -1,4 +1,5 @@
 export const guidesData = [
+
   {
     id: '1',
     title: 'Cepillado de Dientes',
@@ -10,36 +11,42 @@ export const guidesData = [
         title: 'Consigue tu cepillo de dientes',
         description: 'Encuentra tu cepillo de dientes y sostenlo en tu mano',
         icon: '🪥',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso1.mp3' // Dummy URL
       },
       {
         id: '1-2',
         title: 'Pon pasta de dientes en el cepillo',
         description: 'Exprime una pequeña cantidad de pasta de dientes en tu cepillo',
         icon: '🧴',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso2.mp3' // Dummy URL
       },
       {
         id: '1-3',
         title: 'Mojar el cepillo de dientes',
         description: 'Pon el cepillo de dientes bajo el grifo durante unos segundos',
         icon: '💧',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso3.mp3'
       },
       {
         id: '1-4',
         title: 'Cepilla tus dientes',
         description: 'Mueve suavemente el cepillo en pequeños círculos por todos tus dientes',
         icon: '🦷',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso4.mp3'
       },
       {
         id: '1-5',
         title: 'Enjuaga tu boca',
         description: 'Toma un poco de agua en la boca y escúpela',
         icon: '🚿',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso5.mp3'
       },
       {
         id: '1-6',
         title: 'Limpia todo',
         description: 'Enjuaga tu cepillo de dientes y guarda todo en su lugar',
         icon: '✨',
+        audioUrl: 'https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/GUIA%20PICTOGRAMAS/CepilladoDientes/paso6.mp3'
       },
     ],
   },
@@ -174,94 +181,45 @@ export const guidesData = [
         icon: '🏠',
       },
     ],
-  },{
-  id: '5',
-  title: 'Ir al Baño',
-  description: 'Pasos para usar el baño de forma correcta',
-  icon: '🚽',
-  steps: [
-    {
-      id: '5-1',
-      title: 'Entra al baño',
-      description: 'Ve al baño cuando sientas que lo necesitas',
-      icon: '🚪',
-    },
-    {
-      id: '5-2',
-      title: 'Bájate la ropa',
-      description: 'Bájate los pantalones y la ropa interior',
-      icon: '🩲',
-    },
-    {
-      id: '5-3',
-      title: 'Siéntate en el inodoro',
-      description: 'Siéntate con cuidado sobre el inodoro',
-      icon: '🚽',
-    },
-    {
-      id: '5-4',
-      title: 'Haz tus necesidades',
-      description: 'Orina o defeca en el inodoro',
-      icon: '💩',
-    },
-    {
-      id: '5-5',
-      title: 'Límpiate',
-      description: 'Usa papel higiénico para limpiarte',
-      icon: '🧻',
-    },
-    {
-      id: '5-6',
-      title: 'Tira la cadena',
-      description: 'Presiona el botón o palanca para vaciar el inodoro',
-      icon: '🚰',
-    },
-    {
-      id: '5-7',
-      title: 'Lávate las manos',
-      description: 'Ve al lavamanos y lávate las manos con agua y jabón',
-      icon: '🧼',
-    },
-  ],
-},
+  },
 {
-  id: '6',
+  id: '5',
   title: 'Hora de Dormir',
   description: 'Rutina para prepararse para ir a dormir',
   icon: '🛏️',
   steps: [
     {
-      id: '6-1',
+      id: '5-1',
       title: 'Ponerte el pijama',
       description: 'Cámbiate y ponte tu pijama cómodo',
       icon: '🛌',
     },
     {
-      id: '6-2',
+      id: '5-2',
       title: 'Cepillarte los dientes',
       description: 'Lávate los dientes antes de acostarte',
       icon: '🦷',
     },
     {
-      id: '6-3',
+      id: '5-3',
       title: 'Ir al baño',
       description: 'Ve al baño para evitar despertarte de noche',
       icon: '🚽',
     },
     {
-      id: '6-4',
+      id: '5-4',
       title: 'Apagar pantallas',
       description: 'Apaga la televisión, celular o tablet',
       icon: '📵',
     },
     {
-      id: '6-5',
+      id: '5-5',
       title: 'Apagar la luz',
       description: 'Apaga la luz y relájate en la cama',
       icon: '💡',
     },
     {
-      id: '6-6',
+      id: '5-6',
       title: 'Cerrar los ojos',
       description: 'Respira profundo y cierra los ojos para dormir',
       icon: '😴',
@@ -269,43 +227,43 @@ export const guidesData = [
   ],
 },
 {
-  id: '7',
+  id: '6',
   title: 'Comer en la Mesa',
   description: 'Pasos para tener una comida tranquila y ordenada',
   icon: '🍽️',
   steps: [
     {
-      id: '7-1',
+      id: '6-1',
       title: 'Lava tus manos',
       description: 'Antes de comer, lávate bien las manos',
       icon: '🧼',
     },
     {
-      id: '7-2',
+      id: '6-2',
       title: 'Siéntate correctamente',
       description: 'Siéntate derecho en la silla, frente al plato',
       icon: '🪑',
     },
     {
-      id: '7-3',
+      id: '6-3',
       title: 'Usa cubiertos',
       description: 'Usa cuchara, tenedor o cuchillo si es necesario',
       icon: '🍴',
     },
     {
-      id: '7-4',
+      id: '6-4',
       title: 'Mastica con calma',
       description: 'Come despacio y mastica bien los alimentos',
       icon: '😋',
     },
     {
-      id: '7-5',
+      id: '6-5',
       title: 'Habla con respeto',
       description: 'Si hablas en la mesa, hazlo con respeto y sin gritar',
       icon: '🗣️',
     },
     {
-      id: '7-6',
+      id: '6-6',
       title: 'Limpia y retira',
       description: 'Limpia tu lugar y lleva tu plato cuando termines',
       icon: '🧽',
@@ -313,43 +271,43 @@ export const guidesData = [
   ],
 },
 {
-  id: '8',
+  id: '7',
   title: 'Preparar la Mochila',
   description: 'Cómo preparar tu mochila antes de salir',
   icon: '🎒',
   steps: [
     {
-      id: '8-1',
+      id: '7-1',
       title: 'Mira tu horario',
       description: 'Revisa qué materias tienes hoy o qué necesitas',
       icon: '📅',
     },
     {
-      id: '8-2',
+      id: '7-2',
       title: 'Junta tus útiles',
       description: 'Busca tus cuadernos, carpetas y lápices',
       icon: '✏️',
     },
     {
-      id: '8-3',
+      id: '7-3',
       title: 'Agrega el almuerzo',
       description: 'Coloca tu vianda o merienda si llevás comida',
       icon: '🍱',
     },
     {
-      id: '8-4',
+      id: '7-4',
       title: 'Incluye la botella de agua',
       description: 'Lleva agua para mantenerte hidratado',
       icon: '🥤',
     },
     {
-      id: '8-5',
+      id: '7-5',
       title: 'Cierra la mochila',
       description: 'Guarda todo y cerrá bien la mochila',
       icon: '🎒',
     },
     {
-      id: '8-6',
+      id: '7-6',
       title: 'Listo para salir',
       description: 'Tienes todo listo para ir a la escuela o salida',
       icon: '🚪',

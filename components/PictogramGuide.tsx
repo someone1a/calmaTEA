@@ -6,8 +6,9 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { AccessibleButton } from './AccessibleButton';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { AccessibleButton } from './AccessibleButton'; // Assuming AccessibleButton is in a components folder
+import { Audio } from 'expo-av';
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react-native';
 
 interface Guide {
   id: string;
@@ -19,6 +20,7 @@ interface Guide {
     title: string;
     description: string;
     icon: string;
+    audioUrl: string;
   }>;
 }
 
@@ -29,6 +31,8 @@ interface PictogramGuideProps {
 
 export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [soundObject, setSoundObject] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const goToNextStep = () => {
     if (currentStep < guide.steps.length - 1) {
@@ -42,6 +46,36 @@ export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }
     }
   };
 
+  const playAudio = async (audioUrl: string) => {
+    try {
+      if (soundObject) {
+        await soundObject.unloadAsync();
+        setSoundObject(null);
+        setIsPlaying(false);
+      }
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUrl },
+        { shouldPlay: true }
+      );
+      setSoundObject(sound);
+      setIsPlaying(true);
+
+      sound.setOnPlaybackStatusUpdate(async (status) => {
+        if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+          setIsPlaying(false);
+          await sound.unloadAsync();
+          setSoundObject(null);
+        }
+      });
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      setIsPlaying(false);
+      if (soundObject) await soundObject.unloadAsync();
+      setSoundObject(null);
+    }
+  };
+
   const currentStepData = guide.steps[currentStep];
 
   return (
@@ -49,13 +83,27 @@ export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }
       <View style={styles.header}>
         <Text style={styles.title}>{guide.title}</Text>
         <Text style={styles.progress}>
-          Step {currentStep + 1} of {guide.steps.length}
+          paso {currentStep + 1} de {guide.steps.length}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.stepCard}>
-          <Text style={styles.stepIcon}>{currentStepData.icon}</Text>
+          <View style={styles.stepHeader}>
+            <Text style={styles.stepIcon}>{currentStepData.icon}</Text>
+            {currentStepData.audioUrl && (
+              <AccessibleButton
+                style={styles.playButton}
+                onPress={() => isPlaying ? soundObject?.pauseAsync() : playAudio(currentStepData.audioUrl)}
+                accessibilityLabel={isPlaying ? 'Pause audio' : 'Play audio'}
+                accessibilityHint={isPlaying ? 'Pause the current audio playback' : 'Play the audio for this step'}
+              >
+                {isPlaying ? (
+                  <Pause size={32} color="#2196F3" />
+                ) : (<Play size={32} color="#2196F3" />)}
+              </AccessibleButton>
+            )}
+          </View>
           <Text style={styles.stepTitle}>{currentStepData.title}</Text>
           <Text style={styles.stepDescription}>{currentStepData.description}</Text>
         </View>
@@ -80,7 +128,7 @@ export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }
         >
           <ChevronLeft size={24} color={currentStep === 0 ? '#BDBDBD' : '#2196F3'} />
           <Text style={[styles.navButtonText, currentStep === 0 && styles.disabledText]}>
-            Previous
+            Anterior
           </Text>
         </AccessibleButton>
 
@@ -92,7 +140,7 @@ export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }
           accessibilityHint="Go to the next step in the guide"
         >
           <Text style={[styles.navButtonText, currentStep === guide.steps.length - 1 && styles.disabledText]}>
-            Next
+            Siguiente
           </Text>
           <ChevronRight size={24} color={currentStep === guide.steps.length - 1 ? '#BDBDBD' : '#2196F3'} />
         </AccessibleButton>
@@ -100,14 +148,14 @@ export const PictogramGuide: React.FC<PictogramGuideProps> = ({ guide, onClose }
 
       {currentStep === guide.steps.length - 1 && (
         <View style={styles.completionSection}>
-          <Text style={styles.completionText}>Great job! You've completed this guide! 🎉</Text>
+          <Text style={styles.completionText}>Buen trabajo! Completaste esta guia! 🎉</Text>
           <AccessibleButton
             style={styles.finishButton}
             onPress={onClose}
-            accessibilityLabel="Finish guide"
-            accessibilityHint="Complete the guide and return to the guides list"
+            accessibilityLabel="Guia completada"
+            accessibilityHint="Complete La guia y vuelve a la vista principal"
           >
-            <Text style={styles.finishButtonText}>Finish</Text>
+            <Text style={styles.finishButtonText}>Volver a la vista principal</Text>
           </AccessibleButton>
         </View>
       )}
@@ -157,9 +205,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginBottom: 24,
+    width: '100%',
+  },
+  stepHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
   },
   stepIcon: {
-    fontSize: 80,
+    fontSize: 60,
     marginBottom: 24,
   },
   stepTitle: {
@@ -236,5 +290,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  playButton: {
+    marginLeft: 16,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
   },
 });
