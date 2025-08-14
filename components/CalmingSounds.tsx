@@ -26,10 +26,10 @@ interface Sound {
 }
 
 const soundFiles = {
-  rain: require('../assets/sounds/relaxing/rain.mp3'),
-  ocean: require('../assets/sounds/relaxing/ocean.wav'),
+  rain: require('https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/MUSICA/rain.mp3'),
+  ocean: require('https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/MUSICA/ocean.wav'),
   birds: require('../assets/sounds/relaxing/birds.mp3'),
-  whitenoise: require('../assets/sounds/relaxing/white-noice.wav'),
+  whitenoise: require('https://zhgiyuaxpfstejphdhzh.supabase.co/storage/v1/object/public/MUSICA/white-noice.wav'),
 };
 
 const sounds: Sound[] = [
